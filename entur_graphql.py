@@ -28,14 +28,10 @@ def realtime_data(stops):
   }}"""
 
   url = 'https://api.entur.io/journey-planner/v2/graphql'
-  stops = [
-    {'name': 'Helsfyr', 'id': "NSR:StopPlace:59516"}, 
-    {'name': 'Fyrstikktorget', 'id': "NSR:StopPlace:60245"}
-  ]
 
   stops_data = {}
   for i in range(len(stops)):
-    query = query_template.format(stops[i]['id'])
+    query = query_template.format(stops[i])
     r = requests.post(url, json={'query': query})
     json_data = json.loads(r.text)['data']['stopPlace']
     name = json_data['name']
@@ -55,5 +51,5 @@ def realtime_data(stops):
   return stops_data
 
 if __name__ == "__main__":
-    stops = ["NSR:StopPlace:59516", "NSR:StopPlace:60245"] # Example list. Stop id's are found at the end of urls from Entur journey planner.
+    stops = ['NSR:StopPlace:59516', 'NSR:StopPlace:60245'] # Example list. Stop id's are found at the end of urls from Entur journey planner.
     print(realtime_data(stops))

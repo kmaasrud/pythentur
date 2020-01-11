@@ -17,4 +17,4 @@ def stopid(query):
     return places
 
 if __name__ == "__main__":
-    print(stopid('nittedal'))
+    print(stopid('fyrstikktorget'))
