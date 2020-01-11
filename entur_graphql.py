@@ -1,6 +1,5 @@
 import requests
 import json
-import pandas as pd
 
 def realtime_data(stops):
   """Returns dictionary of realtime transport data from list of Entur stop id's"""
