@@ -1,5 +1,7 @@
 import requests
 import json
+import sys
+import pprint
 
 def realtime_data(stops):
   """Returns dictionary of realtime transport data from list of Entur stop id's"""
@@ -51,5 +53,5 @@ def realtime_data(stops):
   return stops_data
 
 if __name__ == "__main__":
-    stops = ['NSR:StopPlace:59516', 'NSR:StopPlace:60245'] # Example list. Stop id's are found at the end of urls from Entur journey planner.
-    print(realtime_data(stops))
+    stops = sys.argv[1:]
+    pprint.pprint(realtime_data(stops))
