@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import sys
 
 def stopid(query):
     """Returns list of NSR ID's matching input string."""
@@ -17,4 +18,6 @@ def stopid(query):
     return places
 
 if __name__ == "__main__":
-    print(stopid('fyrstikktorget'))
+    args = sys.argv
+    for i in range(1,len(args)):
+        print(args[i] + ": " + str(stopid(args[i])))
