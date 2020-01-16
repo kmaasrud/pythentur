@@ -32,7 +32,7 @@ query_template = """{{
 
 query_url = 'https://api.entur.io/journey-planner/v2/graphql'
 
-iso_datestring = "%Y-%m-%dT%H:%M:%s%z"
+iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
 class Stop:
   def __init__(self, nsr_id, query = query_template):
@@ -41,14 +41,17 @@ class Stop:
     self.query = query
 
   def get(self, noDepartures = 20):
-    self.query.format(self.id, noDepartures)
+    """Retrieves list of dictionaries, containing templated data. 
+    noDepatures specifies entries to retrieve, default is 20."""
+
+    self.query = self.query.format(self.id, noDepartures)
     r = requests.post(query_url, json={'query': self.query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
-    self.json_data = json.loads(r.text)['data']['stopPlace']
+    json_data = json.loads(r.text)['data']['stopPlace']
 
-    self.name = self.json_data['name']
-    self.data = []
+    self.name = json_data['name']
+    data = []
 
-    for call in self.json_data['estimatedCalls']:
+    for call in json_data['estimatedCalls']:
       aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
       expected = datetime.strptime(call['expectedArrivalTime'], iso_datestring)
       delay = expected - aimed
@@ -62,59 +65,14 @@ class Stop:
           'expectedArrivalTime': expected,
           'delay': delay
       }
-      
-      self.data.append(dictio)
 
+      data.append(dictio)
 
+    return data
 
-def realtime_data(stops):
-  """Returns dictionary of realtime transport data from list of Entur stop id's"""
-
-  query_template = """{{
-    stopPlace(id: "{}") {{
-      name
-      estimatedCalls(timeRange: 72100, numberOfDepartures: {}) {{
-        aimedArrivalTime
-        expectedArrivalTime
-        quay {{
-          publicCode
-        }}
-        destinationDisplay {{
-          frontText
-        }}
-        serviceJourney {{
-          journeyPattern {{
-            line {{
-              publicCode
-            }}
-          }}
-        }}
-      }}
-    }}
-  }}"""
-
-  url = 'https://api.entur.io/journey-planner/v2/graphql'
-
-  stops_data = {}
-  for i in range(len(stops)):
-    query = query_template.format(stops[i])
-    r = requests.post(url, json={'query': query})
-    json_data = json.loads(r.text)['data']['stopPlace']
-    name = json_data['name']
-
-    s = []
-    for call in json_data['estimatedCalls']:
-        dictio = {
-            'platform': call['quay']['publicCode'],
-            'line': call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText'],
-            'aimedArrivalTime': call['aimedArrivalTime'],
-            'expectedArrivalTime': call['expectedArrivalTime']
-        }
-        s.append(dictio)
-
-    stops_data[name] = s
-
-  return stops_data
 
 if __name__ == "__main__":
-    pass
+  query = query_template.format("NSR:StopPlace:337", 20)
+  r = requests.post(query_url, json={'query': query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
+  json_data = json.loads(r.text)
+  print(json_data)
