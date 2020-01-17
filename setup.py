@@ -5,8 +5,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="entur-py", # Replace with your own username
-    version="0.1",
-    author="Knut Magnus Aasru",
+    version="0.0.1",
+    author="Knut Magnus Aasrud",
     author_email="kmaasrud@outlook.com",
     description="Simplified data retrieval from Entur in Python",
     long_description=long_description,

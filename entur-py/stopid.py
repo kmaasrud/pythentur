@@ -2,9 +2,10 @@ import json
 import urllib.request
 import sys
 
-def stopid(query):
+def stopid(searchstring):
     """Returns list of NSR ID's matching input string."""
-    url = "https://api.entur.io/geocoder/v1/autocomplete?text="+query+"&lang=nb"
+    searchstring = searchstring.replace(" ", "%20")
+    url = "https://api.entur.io/geocoder/v1/autocomplete?lang=no&text=\""+searchstring+"\""
     with urllib.request.urlopen(url) as request:
         json_data = json.loads(request.read().decode())
 

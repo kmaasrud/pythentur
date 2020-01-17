@@ -70,6 +70,18 @@ class Stop:
 
     return data
 
+  def getCustom(self, noDepartures = 20):
+    """Retrieves list of dictionaries, containing data from custom query. 
+    noDepatures specifies entries to retrieve, default is 20."""
+
+    self.query = self.query.format(self.id, noDepartures)
+    r = requests.post(query_url, json={'query': self.query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
+    json_data = json.loads(r.text)['data']['stopPlace']
+
+    self.name = json_data['name']
+
+    return json_data['estimatedCalls']
+
 
 if __name__ == "__main__":
   query = query_template.format("NSR:StopPlace:337", 20)
