@@ -1,9 +1,0 @@
-README.md
-setup.py
-pythentur/__init__.py
-pythentur/nsrGet.py
-pythentur/stopPlace.py
-pythentur.egg-info/PKG-INFO
-pythentur.egg-info/SOURCES.txt
-pythentur.egg-info/dependency_links.txt
-pythentur.egg-info/top_level.txt
