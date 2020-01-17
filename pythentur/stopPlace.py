@@ -3,12 +3,10 @@ import requests
 import json
 import sys
 from datetime import datetime
-
-# Not necessary
-import pprint
+import numpy
 
 query_template = """{{
-    stopPlace(id: "{}") {{
+  stopPlace(id: \"{}\") {{
       name
       estimatedCalls(timeRange: 72100, numberOfDepartures: {}) {{
         aimedArrivalTime
@@ -34,7 +32,7 @@ query_url = 'https://api.entur.io/journey-planner/v2/graphql'
 
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
-class Stop:
+class StopPlace:
   def __init__(self, nsr_id, query = query_template):
     """Initializes object with the stop's NSR ID. May also take custom GraphQL query."""
     self.id = nsr_id
@@ -84,7 +82,4 @@ class Stop:
 
 
 if __name__ == "__main__":
-  query = query_template.format("NSR:StopPlace:337", 20)
-  r = requests.post(query_url, json={'query': query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
-  json_data = json.loads(r.text)
-  print(json_data)
+  pass

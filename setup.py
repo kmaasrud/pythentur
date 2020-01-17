@@ -4,14 +4,14 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="entur-py", # Replace with your own username
-    version="0.0.1",
+    name="pythentur",
+    version="0.0.2",
     author="Knut Magnus Aasrud",
     author_email="kmaasrud@outlook.com",
     description="Simplified data retrieval from Entur in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/kmaasrud/entur-py",
+    url="https://github.com/kmaasrud/pythentur",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
