@@ -38,7 +38,7 @@ Pythentur supports custom query templates, if you wish to retrieve more data. Th
 
 ### `StopPlace.get()` method
 
-This method makes a request to the Entur GraphQL API, and retrives a list of calls, each represented by a dictionary.
+This method makes a request to the Entur GraphQL API, by populating the query template with the NSR ID and the number of calls to get. This retrieves a list of calls, each represented by a dictionary.
 
     from pythentur import StopPlace
     oslo_s = StopPlace("NSR:StopPlace:59872")
@@ -51,3 +51,5 @@ Here, `data` is a list of dictionaries, each containing:
 - `'aimedArrivalTime'`: Datetime object containing the planned arrival time of the call.
 - `'expectedArrivalTime'`: Datetime object containing the expected arrival time of the call.
 - `'delay'`: Timedelta object containing the calculated delay of the call.
+
+The number of calls to retrieve can be changed by changing the argument `noDepartures` in the `get()` method. The default is 20.
