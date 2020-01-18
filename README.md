@@ -16,6 +16,9 @@ This package provides functions for simple fetching of real-time public transpor
 `pip install pythentur`
 
 ### Dependencies:
+
+Due to an issue, I'm not able to generate package dependencies, so they will have to be installed manually for the time being.
+
 - Requests
 
 ## Usage
