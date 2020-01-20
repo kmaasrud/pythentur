@@ -3,7 +3,6 @@ import requests
 import json
 import sys
 from datetime import datetime
-import numpy
 
 query_template = """{{
   stopPlace(id: \"{}\") {{
