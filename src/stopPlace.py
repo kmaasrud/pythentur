@@ -2,7 +2,8 @@
 import requests
 import json
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
+from prettyTime import prettyTime
 
 query_template = """{{
   stopPlace(id: \"{}\") {{
@@ -27,58 +28,49 @@ query_template = """{{
     }}
   }}"""
 
-query_url = 'https://api.entur.io/journey-planner/v2/graphql'
+api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
+now = datetime.now(timezone.utc)
 
 class StopPlace:
-  def __init__(self, nsr_id, query = query_template):
-    """Initializes object with the stop's NSR ID. May also take custom GraphQL query."""
+  def __init__(self, nsr_id, noDepartures = 20):
+    """Initializes object with the stop's NSR ID. May also take custom GraphQL query.
+    
+    noDepatures - Specifies entries to retrieve. Default is 20.
+    """
     self.id = nsr_id
-    self.query = query
+    self.query = query_template.format(self.id, noDepartures)
+    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
+    json_data = json.loads(r.text)['data']['stopPlace']
+    self.name = json_data['name']
 
-  def get(self, noDepartures = 20):
-    """Retrieves list of dictionaries, containing templated data. 
-    noDepatures specifies entries to retrieve, default is 20."""
-
-    self.query = self.query.format(self.id, noDepartures)
-    r = requests.post(query_url, json={'query': self.query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
+  def get(self):
+    """Retrieves list of dictionaries, containing templated data."""
+    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
     json_data = json.loads(r.text)['data']['stopPlace']
 
-    self.name = json_data['name']
     data = []
-
     for call in json_data['estimatedCalls']:
       aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
       expected = datetime.strptime(call['expectedArrivalTime'], iso_datestring)
       delay = expected - aimed
       line = call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText']
       platform = call['quay']['publicCode']
+      readable = prettyTime((expected - now).seconds)
 
       dictio = {
           'platform': platform,
           'line': line,
           'aimedArrivalTime': aimed,
           'expectedArrivalTime': expected,
-          'delay': delay
+          'delay': delay,
+          'readableTime': readable
       }
 
       data.append(dictio)
 
     return data
-
-  def getCustom(self, noDepartures = 20):
-    """Retrieves list of dictionaries, containing data from custom query. 
-    noDepatures specifies entries to retrieve, default is 20."""
-
-    self.query = self.query.format(self.id, noDepartures)
-    r = requests.post(query_url, json={'query': self.query}, headers={"ET-Client-Name": "kmaasrud - entur-py"})
-    json_data = json.loads(r.text)['data']['stopPlace']
-
-    self.name = json_data['name']
-
-    return json_data['estimatedCalls']
-
 
 if __name__ == "__main__":
   pass
