@@ -3,7 +3,7 @@ import requests
 import json
 import sys
 from datetime import datetime, timezone
-from prettyTime import prettyTime
+from .prettyTime import prettyTime
 
 query_template = """{{
   stopPlace(id: \"{}\") {{
@@ -31,7 +31,6 @@ query_template = """{{
 api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
-now = datetime.now(timezone.utc)
 
 class StopPlace:
   def __init__(self, nsr_id, noDepartures = 20):
@@ -50,6 +49,7 @@ class StopPlace:
     r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
     json_data = json.loads(r.text)['data']['stopPlace']
 
+    now = datetime.now(timezone.utc)
     data = []
     for call in json_data['estimatedCalls']:
       aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
