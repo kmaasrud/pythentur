@@ -4,8 +4,14 @@ import sys
 from datetime import datetime
 
 class Journey():
-    def __init__(self):
-        pass
+    def __init__(self, fromPlace, toPlace, header, time = None, noDepartures = 20):
+        self.time = time
+        self.query_formatter = {'from': fromPlace, 'to': toPlace, 'noDepartures': noDepartures}
+
+    def get(self):
+        query = query_template.format(self.query_formatter)
+        r = requests.post(api_url, json={'query': query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
+        json_data = json.loads(r.text)['data']
 
 # TODO: Preferred or banned transport modes.
 query_template = """{{
@@ -16,7 +22,7 @@ query_template = """{{
     to: {{
       place: {to}
     }}
-    numTripPatterns: 5
+    numTripPatterns: {noDepartures}
     dateTime: {time}
     minimumTransferTime: 180
   )
