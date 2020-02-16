@@ -41,9 +41,9 @@ class StopPlace:
     """
     self.id = nsr_id
     self.query = query_template.format(self.id, noDepartures)
-    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
+    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
     json_data = json.loads(r.text)['data']['stopPlace']
-    self.name = json_data['name']
+    self.name = json_data['name'] # TODO: Not always available. Constructor must handle this.
 
   def get(self):
     """Retrieves list of dictionaries, containing templated data."""
@@ -71,6 +71,8 @@ class StopPlace:
       data.append(dictio)
 
     return data
+
+# TODO: Class handling custom route info.
 
 if __name__ == "__main__":
   pass
