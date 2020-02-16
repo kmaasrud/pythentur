@@ -8,7 +8,6 @@ This package provides functions for simple fetching of real-time public transpor
   - [Usage](#usage)
     - [`StopPlace` object](#stopplace-object)
     - [`StopPlace.get` method](#stopplaceget-method)
-    - [`StopPlace.getCustom` method](#stopplacegetcustom-method)
     - [`nsrGet` function](#nsrget-function)
 
 ## Installation
@@ -32,14 +31,9 @@ from pythentur import StopPlace
 oslo_s = StopPlace("NSR:StopPlace:59872")
 ```
 
-This stores the ID and a pre-made query template in the GraphQL format. 
+This stores the ID, the name of the stop place (if available) and a pre-made query template in the GraphQL format. 
 
-Pythentur supports custom query templates, if you wish to retrieve more data. This is given to the constructor with the `query` argument.
-
-    query_template = "<graphQL query>"
-    oslo_s = StopPlace("NSR:StopPlace:59872", query = query_template)
-
-This template string must have two spots (for the NSR ID and the number of calls to recieve) that are formattable by the Python `format` method. The GraphQL interface can be experimented with [here.](https://api.entur.io/journey-planner/v2/ide/?query=%7B%0A%20%20stopPlace(id%3A%20%22NSR%3AStopPlace%3A337%22)%20%7B%0A%20%20%20%20name%0A%20%20%20%20id%0A%20%20%20%20estimatedCalls%20%7B%0A%20%20%20%20%20%20expectedDepartureTime%0A%20%20%20%20%20%20destinationDisplay%20%7B%0A%20%20%20%20%20%20%20%20frontText%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20serviceJourney%20%7B%0A%20%20%20%20%20%20%20%20line%20%7B%0A%20%20%20%20%20%20%20%20%20%20publicCode%0A%20%20%20%20%20%20%20%20%20%20transportMode%0A%20%20%20%20%20%20%20%20%7D%0A%20%20%20%20%20%20%7D%0A%20%20%20%20%7D%0A%20%20%7D%0A%7D%0A)
+The number of calls to retrieve can be changed by changing the argument `noDepartures` in the `get` method. The default is 20.
 
 ### `StopPlace.get` method
 
@@ -56,14 +50,7 @@ Here, `data` is a list of dictionaries, each containing:
 - `'aimedArrivalTime'`: Datetime object containing the planned arrival time of the call.
 - `'expectedArrivalTime'`: Datetime object containing the expected arrival time of the call.
 - `'delay'`: Timedelta object containing the calculated delay of the call.
-
-The number of calls to retrieve can be changed by changing the argument `noDepartures` in the `get` method. The default is 20.
-
-In addition to getting the departure data for the stop, `get` also fetches the name of the stop and stores it in a variable `name`.
-
-### `StopPlace.getCustom` method
-
-Given a custom query, the `get` method will (probably) not work. In this case, the `getCustom` method should be used, and will return the resulting json data back as a dictionary.
+- `'readableTime'`: Returns a human readable string with relative time from now to the expected departure.
 
 ### `nsrGet` function
 
