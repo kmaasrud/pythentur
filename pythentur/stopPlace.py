@@ -52,23 +52,17 @@ class StopPlace:
     now = datetime.now(timezone.utc)
     data = []
     for call in json_data['estimatedCalls']:
-      aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
       expected = datetime.strptime(call['expectedArrivalTime'], iso_datestring)
-      delay = expected - aimed
-      line = call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText']
-      platform = call['quay']['publicCode']
-      readable = prettyTime((expected - now).seconds)
-
-      dictio = {
-          'platform': platform,
-          'line': line,
+      aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
+      data.append({
+          'platform': call['quay']['publicCode'],
+          'line': call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText'],
+          # TODO: Separate lineNumber and lineName
           'aimedArrivalTime': aimed,
           'expectedArrivalTime': expected,
-          'delay': delay,
-          'readableTime': readable
-      }
-
-      data.append(dictio)
+          'delay': expected - aimed,
+          'readableTime': prettyTime((expected - now).seconds)
+      })
 
     return data
 
