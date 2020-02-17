@@ -1,7 +1,6 @@
 # Necessary imports
 import requests
 import json
-import sys
 from datetime import datetime, timezone
 from .prettyTime import prettyTime
 
