@@ -55,8 +55,9 @@ class Journey():
                         'toName': leg['toPlace']['quay']['stopPlace']['name'],
                         'toId': leg['toPlace']['quay']['stopPlace']['id']
                     })
+                # TODO: Add waiting time to legs.
             data.append({'duration': duration, 'legs': legs})
-        
+
         return data
 
 # TODO: Preferred or banned transport modes.
