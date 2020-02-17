@@ -4,6 +4,7 @@ import sys
 
 transportation_methods = ['metroStation', 'onstreetBus', 'busStation', 'railStation', 'onstreetTram', 'ferryStop']
 
+# TODO: Company header here as well. Avoid everything going through me.
 def nsrGet(searchstring):
     """Returns list of NSR ID's matching input string."""
     searchstring = searchstring.replace(" ", "%20")
