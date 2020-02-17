@@ -32,4 +32,4 @@ def nsrGet(searchstring, header):
     return places[0] if len(places) == 1 else places
 
 if __name__ == "__main__":
-    print(nsrGet("Helsfyr T", "kmaasrud - pythentur"))
+    pass
