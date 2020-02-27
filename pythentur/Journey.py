@@ -2,18 +2,21 @@ import requests
 import json
 import sys
 from datetime import datetime, timezone
-from pythentur import nsrGet
+from nsrGet import nsrGet
 
 class Journey():
-    def __init__(self, fromPlace, toPlace, header, time = None, noDepartures = 20):
-        """Constructor for the Journey object.
+    """Object containing a journey from one place to another.
 
-        fromPlace - NSR ID of stop place to travel from.
-        toPlace - NSR ID of stop place to travel to.
-        header - Header string in the format 'company - application'
-        time - Time of departure, as an isostring. Default is now.
-        noDepartures - Number of routes to fetch. Default is 20.
-        """
+    Args:
+        fromPlace (str): NSR ID of stop place to travel from.
+        toPlace (str): NSR ID of stop place to travel to.
+        header (str): Header string in the format 'company - application'
+
+    Keyword args:
+        time (str): Time of departure, as an isostring. (default: now)
+        noDepartures (int): Number of routes to fetch. (default: 20)
+    """
+    def __init__(self, fromPlace, toPlace, header, time = None, noDepartures = 20):
         self.fromPlace = fromPlace
         self.toPlace = toPlace
         self.header = header
@@ -73,8 +76,6 @@ query_template = """{{
     dateTime: \"{time}\"
     minimumTransferTime: 180
   )
-
-#### Requested fields
   {{
     tripPatterns {{
       duration
@@ -120,4 +121,6 @@ api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
 if __name__ == "__main__":
-    pass
+    header = "kmaasrud - pythentur"
+    htn = Journey(nsrGet("Helsfyr T", header), nsrGet("Nittedal stasjon", header), header)
+    print(htn.get())

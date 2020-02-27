@@ -2,7 +2,8 @@ def prettyTime(diffInSecs):
     """Returns a human-readable string from time-difference (in seconds).
     Uses absolute value of time-diff, and thus does not care about before/after.
 
-    diffInSecs - Timedifference in seconds.
+    Args:
+        diffInSecs (int): Timedifference in seconds.
     """
     intervals = [('minute', 60), ('hour', 60), ('day', 24), ('week', 7), ('month', 4.34811904762), ('year', 12)]
 

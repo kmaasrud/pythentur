@@ -32,11 +32,15 @@ api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
 class StopPlace:
+  """Stop place object.
+
+  Args:
+    nsr_id (str): The NSR ID of the requested stop place.
+
+  Keyword args:  
+    noDepatures (int): Specifies entries to retrieve. Default is 20.
+  """
   def __init__(self, nsr_id, noDepartures = 20):
-    """Initializes object with the stop's NSR ID. May also take custom GraphQL query.
-    
-    noDepatures - Specifies entries to retrieve. Default is 20.
-    """
     self.id = nsr_id
     self.query = query_template.format(self.id, noDepartures)
     r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
@@ -64,8 +68,6 @@ class StopPlace:
       })
 
     return data
-
-# TODO: Class handling custom route info.
 
 if __name__ == "__main__":
   pass
