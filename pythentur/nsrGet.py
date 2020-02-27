@@ -22,7 +22,13 @@ def nsrGet(searchstring, header):
     places = []
     for place in features:
         if place['properties']['category'][0] in transportation_methods:
-            places.append(place['properties']['id'])
+            places.append({
+                'id': place['properties']['id'],
+                'name': place['properties']['name'],
+                'county': place['properties']['county'],
+                'locality': place['properties']['locality'],
+                'coordinates': place['geometry']['coordinates']
+            })
 
     # TODO: Change print message to actual error.
     if not places:
