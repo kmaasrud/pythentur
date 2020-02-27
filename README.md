@@ -4,7 +4,6 @@ This package provides functions for simple fetching of real-time public transpor
 
 - [Pythentur](#pythentur)
   - [Installation](#installation)
-    - [Dependencies:](#dependencies)
   - [Usage](#usage)
     - [`StopPlace` object](#stopplace-object)
     - [`StopPlace.get` method](#stopplaceget-method)
@@ -13,12 +12,6 @@ This package provides functions for simple fetching of real-time public transpor
 ## Installation
 
 `pip install pythentur`
-
-### Dependencies:
-
-Due to an issue, I'm not able to generate package dependencies, so they will have to be installed manually for the time being.
-
-- Requests
 
 ## Usage
 
@@ -55,3 +48,5 @@ Here, `data` is a list of dictionaries, each containing:
 ### `nsrGet` function
 
 Utilizing `nsrGet`, finding NSR IDs becomes a breeze. Hand in a search string to the function, and it spits out a list of IDs from stop places matching that string. 
+
+<!-- TODO: Rewrite description of nsrGet function. -->
