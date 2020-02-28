@@ -31,7 +31,7 @@ api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
-class StopPlace:
+class StopPlace():
   """Stop place object.
 
   Args:
@@ -40,16 +40,17 @@ class StopPlace:
   Keyword args:  
     noDepatures (int): Specifies entries to retrieve. Default is 20.
   """
-  def __init__(self, nsr_id, noDepartures = 20):
+  def __init__(self, nsr_id, header, noDepartures = 20):
     self.id = nsr_id
     self.query = query_template.format(self.id, noDepartures)
     r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
     json_data = json.loads(r.text)['data']['stopPlace']
     self.name = json_data['name'] # TODO: Not always available. Constructor must handle this.
+    self.header = header
 
   def get(self):
     """Retrieves list of dictionaries, containing templated data."""
-    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'})
+    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': self.header})
     json_data = json.loads(r.text)['data']['stopPlace']
 
     now = datetime.now(timezone.utc)
