@@ -6,35 +6,61 @@ This package provides functions for simple fetching of real-time public transpor
   - [Installation](#installation)
   - [Usage](#usage)
     - [`StopPlace` object](#stopplace-object)
-    - [`StopPlace.get` method](#stopplaceget-method)
+    - [`Journey` object](#journey-object)
+    - [`get` method](#get-method)
+      - [`StopPlace.get()`](#stopplaceget)
+      - [`Journey.get()`](#journeyget)
     - [`nsrGet` function](#nsrget-function)
 
 ## Installation
 
-`pip install pythentur`
+```
+pip install pythentur
+```
+
+or clone this GitHub repository, if you want to expand upon it.
 
 ## Usage
 
 ### `StopPlace` object
 
-Create a `StopPlace` object by handing in the NSR ID to the constructor.
+Create a `StopPlace` object by handing in the NSR ID and a header (formatted like in the example below) to the constructor.
 
-```
+```python
 from pythentur import StopPlace
-oslo_s = StopPlace("NSR:StopPlace:59872")
+oslo_s = StopPlace("NSR:StopPlace:59872", "company - application")
 ```
 
-This stores the ID, the name of the stop place (if available) and a pre-made query template in the GraphQL format. 
+This stores the ID, the name of the stop place (if available) and the header, for later use. 
 
-The number of calls to retrieve can be changed by changing the argument `noDepartures` in the `get` method. The default is 20.
+The number of calls to retrieve can be changed by changing the keyword argument `noDepartures` in the `get` method. The default is 20.
 
-### `StopPlace.get` method
+### `Journey` object
 
-This method makes a request to the Entur GraphQL API, by populating the query template with the NSR ID and the number of calls to get. This retrieves a list of calls, each represented by a dictionary.
+Create a `Journey` object by handing in the NSR ID of a starting place and a destination (for now, these must be stop places, thus the NSR ID). In addition, a header is required (formatted like in the example below).
 
-    from pythentur import StopPlace
-    oslo_s = StopPlace("NSR:StopPlace:59872")
-    data = oslo_s.get()
+```python
+from pythentur import Journey
+oslo_s_to_majorstuen = Journey("NSR:StopPlace:59872", "NSR:StopPlace:58381", "company - application")
+```
+
+This stores the from and to places, along with the header and the optional keyword arguments `time` and `noDepartures`. 
+
+`time` defaults to the current time, but a custom time is supported. The time must be a datetime object. 
+<!-- TODO: Example -->
+`noDepartures` is the number of journey alternatives to fetch. It defaults to 20.
+
+### `get` method
+
+This method is supported by both the [`StopPlace`](#stopplace-object) object and the [`Journey`](#journey-object) object. It makes a request to the Entur GraphQL API, by populating the query template with the NSR ID and the number of departures to get.
+
+#### `StopPlace.get()`
+
+```python
+from pythentur import StopPlace
+oslo_s = StopPlace("NSR:StopPlace:59872", "company - application")
+data = oslo_s.get()
+```
 
 Here, `data` is a list of dictionaries, each containing:
 
@@ -44,6 +70,29 @@ Here, `data` is a list of dictionaries, each containing:
 - `'expectedArrivalTime'`: Datetime object containing the expected arrival time of the call.
 - `'delay'`: Timedelta object containing the calculated delay of the call.
 - `'readableTime'`: Returns a human readable string with relative time from now to the expected departure.
+
+#### `Journey.get()`
+
+```python
+from pythentur import Journey
+oslo_s_to_majorstuen = Journey("NSR:StopPlace:59872", "NSR:StopPlace:58381", "company - application")
+data = oslo_s_to_majorstuen.get()
+```
+
+Here `data` is a list of different journey alternatives. Each of these alternatives are a list of the legs this journey has. Every leg contains
+ 
+- `'transportMode'`: String describing the mode of transport for this leg.
+- `'aimedStartTime'`: Datetime object of the aimed start time of this leg.
+- `'expectedStartTime'`: Datetime object of the expected start time of this leg.
+- `'fromName'`: Name of the stop place the leg starts at.
+- `'fromId'`: NSR ID of the stop place the leg starts at.
+- `'toName'`: Name of the stop place the leg ends at.
+- `'toId'`: NSR ID of the stop place the leg ends at.
+- `'lineName'`: Display name of the arriving transport (not available if `transportMode` is `foot`).
+- `'lineNumber'`: Route number of the arriving transport (not available if `transportMode` is `foot`).
+- `'lineColor'`: Hex color value of the arriving transport (not available if `transportMode` is `foot`).
+
+<!-- TODO: Add some data retrieval examples. -->
 
 ### `nsrGet` function
 
