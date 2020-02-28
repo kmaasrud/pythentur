@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pythentur",
-    version="0.0.9",
+    version="0.1.0",
     author="Knut Magnus Aasrud",
     author_email="kmaasrud@outlook.com",
     description="Simplified data retrieval from Entur in Python",
