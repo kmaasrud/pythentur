@@ -13,7 +13,7 @@ class Journey():
         header (str): Header string in the format 'company - application'
 
     Keyword args:
-        time (str): Time of departure, as an isostring. (default: now)
+        time (datetime): Time of departure, as a datetime object. (default: now)
         noDepartures (int): Number of routes to fetch. (default: 20)
     """
     def __init__(self, fromPlace, toPlace, header, time = None, noDepartures = 20):
@@ -25,7 +25,7 @@ class Journey():
 
     def get(self):
         if self.time is None: self.query_formatter['time'] = datetime.now(timezone.utc).strftime(iso_datestring)
-        else: self.query_formatter['time'] = self.time
+        else: self.query_formatter['time'] = self.time.strftime(iso_datestring)
         query = query_template.format(**self.query_formatter)
         r = requests.post(api_url, json={'query': query}, headers={'ET-Client-Name': self.header})
         json_data = json.loads(r.text)['data']['trip']['tripPatterns']
@@ -40,10 +40,10 @@ class Journey():
                         'transportMode': leg['mode'],
                         'aimedStartTime': datetime.strptime(leg['aimedStartTime'], iso_datestring),
                         'expectedStartTime': datetime.strptime(leg['expectedStartTime'], iso_datestring),
-                        'fromName': leg['fromPlace']['quay']['stopPlace']['name'],
-                        'fromId': leg['fromPlace']['quay']['stopPlace']['id'],
-                        'toName': leg['toPlace']['quay']['stopPlace']['name'],
-                        'toId': leg['toPlace']['quay']['stopPlace']['id']
+                        'fromName': leg['fromPlace']['quay']['stopPlace']['name'], # TODO: Needs a fix for when the departure place is not a stop place.
+                        'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
+                        'toName': leg['toPlace']['quay']['stopPlace']['name'], # TODO: See above
+                        'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
                     })
                 else:
                     legs.append({
@@ -59,6 +59,7 @@ class Journey():
                         'toId': leg['toPlace']['quay']['stopPlace']['id']
                     })
                 # TODO: Add waiting time to legs.
+                # TODO: Add readable time to legs.
             data.append({'duration': duration, 'legs': legs})
 
         return data

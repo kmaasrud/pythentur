@@ -36,6 +36,7 @@ class StopPlace():
 
   Args:
     nsr_id (str): The NSR ID of the requested stop place.
+    header (str): Header string in the format 'company - application'
 
   Keyword args:  
     noDepatures (int): Specifies entries to retrieve. Default is 20.
