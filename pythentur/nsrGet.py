@@ -2,6 +2,8 @@ import json
 import urllib.request
 import sys
 
+# TODO: Unicode issues
+
 transportation_methods = ['metroStation', 'onstreetBus', 'busStation', 'railStation', 'onstreetTram', 'ferryStop']
 
 # TODO: Some way of viewing the name of the stop place from the ID.
