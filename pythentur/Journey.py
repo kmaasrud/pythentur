@@ -2,7 +2,6 @@ import requests
 import json
 import sys
 from datetime import datetime, timezone
-from nsrGet import nsrGet
 
 class Journey():
     """Object containing a journey from one place to another.
@@ -122,6 +121,4 @@ api_url = 'https://api.entur.io/journey-planner/v2/graphql'
 iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
 if __name__ == "__main__":
-    header = "kmaasrud - pythentur"
-    htn = Journey(nsrGet("Helsfyr T", header), nsrGet("Nittedal stasjon", header), header)
-    print(htn.get())
+    pass
