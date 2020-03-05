@@ -1,6 +1,8 @@
 import json
-import urllib.request as urqst
-from helpers.constants import GEOCODER_URL
+from urllib.request import Request, urlopen
+from urllib.parse import quote
+
+from .helpers import GEOCODER_URL
 
 class Location:
     """Doc"""
@@ -10,8 +12,8 @@ class Location:
         self.coordinates = [float(lat), float(lon)]
 
         url = GEOCODER_URL + '/reverse?point.lat={}&point.lon={}&size=1&lang=en'.format(str(lat),str(lon))
-        req = urqst.Request(url, headers={'ET-Client-Name': header})
-        with urqst.urlopen(req) as request:
+        req = Request(url, headers={'ET-Client-Name': header})
+        with urlopen(req) as request:
             json_data = json.loads(request.read().decode())
 
         properties = json_data['features'][0]['properties']
@@ -23,9 +25,9 @@ class Location:
     @classmethod
     def from_string(cls, query, header):
         query = query.replace(" ", "%20")
-        url = GEOCODER_URL + '/autocomplete?text={}&size=1&lang=en'.format(query)
-        req = urqst.Request(url, headers={'ET-Client-Name': header})
-        with urqst.urlopen(req) as request:
+        url = GEOCODER_URL + '/autocomplete?text={}&size=1&lang=en'.format(quote(query))
+        req = Request(url, headers={'ET-Client-Name': header})
+        with urlopen(req) as request:
             json_data = json.loads(request.read().decode())
 
         coords = json_data['features'][0]['geometry']['coordinates']

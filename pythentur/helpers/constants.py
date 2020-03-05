@@ -8,6 +8,9 @@ QUERY_COORDS = """{{
   stopPlace(id: \"{}\") {{
     latitude
     longitude
+    tariffZones {{
+      id
+    }}
   }}
 }}"""
 

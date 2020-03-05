@@ -1,7 +1,8 @@
 import requests
 import json
 from datetime import datetime, timezone
-from .constants import QUERY_JOURNEY, API_URL, ISO_FORMAT
+
+from .helpers.constants import ISO_FORMAT, API_URL, QUERY_JOURNEY
 
 class Journey():
     """Object containing a journey from one place to another.
