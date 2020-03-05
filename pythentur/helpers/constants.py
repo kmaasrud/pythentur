@@ -4,6 +4,13 @@ GEOCODER_URL = 'https://api.entur.io/geocoder/v1'
 
 ISO_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
+QUERY_COORDS = """{{
+  stopPlace(id: \"{}\") {{
+    latitude
+    longitude
+  }}
+}}"""
+
 QUERY_STOP_PLACE = """{{
   stopPlace(id: \"{}\") {{
       name

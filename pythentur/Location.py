@@ -7,6 +7,7 @@ class Location:
     def __init__(self, lat, lon, header):
         self.lat = lat
         self.lon = lon
+        self.coordinates = [float(lat), float(lon)]
 
         url = GEOCODER_URL + '/reverse?point.lat={}&point.lon={}&size=1&lang=en'.format(str(lat),str(lon))
         req = urqst.Request(url, headers={'ET-Client-Name': header})
@@ -14,10 +15,10 @@ class Location:
             json_data = json.loads(request.read().decode())
 
         properties = json_data['features'][0]['properties']
+
         self.name = properties['name']
         self.county = properties['county']
         self.locality = properties['locality']
-        self.borough = properties['borough']
 
     @classmethod
     def from_string(cls, query, header):
@@ -34,5 +35,4 @@ class Location:
         return getattr(self, key)
 
 if __name__ == "__main__":
-    hjemme = Location.from_string('Hulderveien 7', 'kmaasrud - pythentur')
-    print(hjemme['county'])
+    pass

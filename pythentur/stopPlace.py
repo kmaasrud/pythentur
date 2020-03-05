@@ -2,10 +2,13 @@
 import requests
 import json
 from datetime import datetime, timezone
-from .prettyTime import prettyTime
-from .constants import QUERY_STOP_PLACE, API_URL, ISO_FORMAT
+import urllib.request as urqst
 
-class StopPlace():
+from helpers.prettyTime import prettyTime
+from helpers.constants import QUERY_STOP_PLACE, QUERY_COORDS, API_URL, ISO_FORMAT, GEOCODER_URL
+from Location import Location
+
+class StopPlace(Location):
   """Stop place object.
 
   Args:
@@ -15,13 +18,26 @@ class StopPlace():
   Keyword args:  
     noDepatures (int): Specifies entries to retrieve. Default is 20.
   """
-  def __init__(self, nsr_id, header, noDepartures = 20):
+
+  def __init__(self, nsr_id, header):
     self.id = nsr_id
-    self.query = QUERY_STOP_PLACE.format(self.id, noDepartures)
-    r = requests.post(API_URL, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
-    json_data = json.loads(r.text)['data']['stopPlace']
-    self.name = json_data['name']
     self.header = header
+    self.n_departures = 20
+    r = requests.post(API_URL, json={'query': QUERY_COORDS.format(nsr_id)}, headers={'ET-Client-Name': self.header})
+    coords = json.loads(r.text)['data']['stopPlace']
+    super().__init__(coords['latitude'], coords['longitude'], self.header)
+
+  @classmethod
+  def from_string(cls, query, header):
+    query = query.replace(" ", "%20")
+    url = GEOCODER_URL + '/autocomplete?text={}&size=1&layers=venue&lang=en'.format(query)
+    req = urqst.Request(url, headers={'ET-Client-Name': header})
+    with urqst.urlopen(req) as request:
+        json_data = json.loads(request.read().decode())
+
+    nsr_id = json_data['features'][0]['properties']['id']
+
+    return cls(nsr_id, header)
 
   def get(self):
     """Retrieves list of dictionaries, containing templated data."""
@@ -45,11 +61,6 @@ class StopPlace():
 
     return data
 
-  def __setitem__(self, key, value)
-
-  def __getitem__(self, key):
-    pass
-
   def __repr__(self):
     pass
 
@@ -57,4 +68,6 @@ class StopPlace():
     pass
 
 if __name__ == "__main__":
-  pass
+  header = 'kmaasrud - pythentur'
+  fyrstikktorget = StopPlace.from_string('fyrstikktorget', header)
+  print(fyrstikktorget['id'])
