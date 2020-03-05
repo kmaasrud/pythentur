@@ -1,7 +1,7 @@
 import requests
 import json
-import sys
 from datetime import datetime, timezone
+from .constants import QUERY_JOURNEY, API_URL, ISO_FORMAT
 
 class Journey():
     """Object containing a journey from one place to another.
@@ -23,10 +23,10 @@ class Journey():
         self.query_formatter = {'from': fromPlace, 'to': toPlace, 'noDepartures': noDepartures}
 
     def get(self):
-        if self.time is None: self.query_formatter['time'] = datetime.now(timezone.utc).strftime(iso_datestring)
-        else: self.query_formatter['time'] = self.time.strftime(iso_datestring)
-        query = query_template.format(**self.query_formatter)
-        r = requests.post(api_url, json={'query': query}, headers={'ET-Client-Name': self.header})
+        if self.time is None: self.query_formatter['time'] = datetime.now(timezone.utc).strftime(ISO_FORMAT)
+        else: self.query_formatter['time'] = self.time.strftime(ISO_FORMAT)
+        query = QUERY_JOURNEY.format(**self.query_formatter)
+        r = requests.post(API_URL, json={'query': query}, headers={'ET-Client-Name': self.header})
         json_data = json.loads(r.text)['data']['trip']['tripPatterns']
 
         data = []
@@ -37,8 +37,8 @@ class Journey():
                 if leg['mode'] == 'foot':
                     legs.append({
                         'transportMode': leg['mode'],
-                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], iso_datestring),
-                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], iso_datestring),
+                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
+                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
                         'fromName': leg['fromPlace']['quay']['stopPlace']['name'], # TODO: Needs a fix for when the departure place is not a stop place.
                         'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
                         'toName': leg['toPlace']['quay']['stopPlace']['name'], # TODO: See above
@@ -47,8 +47,8 @@ class Journey():
                 else:
                     legs.append({
                         'transportMode': leg['mode'],
-                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], iso_datestring),
-                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], iso_datestring),
+                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
+                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
                         'lineName': leg['fromEstimatedCall']['destinationDisplay']['frontText'],
                         'lineNumber': leg['line']['publicCode'],
                         'lineColor': "#" + leg['line']['presentation']['colour'],
@@ -64,61 +64,6 @@ class Journey():
         return data
 
 # TODO: Preferred or banned transport modes.
-query_template = """{{
-  trip(
-    from: {{
-      place: \"{from}\"
-    }}
-    to: {{
-      place: \"{to}\"
-    }}
-    numTripPatterns: {noDepartures}
-    dateTime: \"{time}\"
-    minimumTransferTime: 180
-  )
-  {{
-    tripPatterns {{
-      duration
-      legs {{
-        mode
-        aimedStartTime
-        expectedStartTime
-        fromEstimatedCall {{
-          destinationDisplay {{
-            frontText
-          }}
-        }}
-        line {{
-          publicCode
-          name
-          presentation {{
-            colour
-          }}
-        }}
-        fromPlace{{
-          quay {{
-            stopPlace {{
-              name
-              id
-            }}
-          }}
-        }}
-        toPlace {{
-          quay {{
-            stopPlace {{
-              name
-              id
-            }}
-          }}
-        }}
-      }}
-    }}
-  }}
-}}"""
-
-api_url = 'https://api.entur.io/journey-planner/v2/graphql'
-
-iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
 
 if __name__ == "__main__":
     pass

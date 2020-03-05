@@ -3,33 +3,7 @@ import requests
 import json
 from datetime import datetime, timezone
 from .prettyTime import prettyTime
-
-query_template = """{{
-  stopPlace(id: \"{}\") {{
-      name
-      estimatedCalls(timeRange: 72100, numberOfDepartures: {}) {{
-        aimedArrivalTime
-        expectedArrivalTime
-        quay {{
-          publicCode
-        }}
-        destinationDisplay {{
-          frontText
-        }}
-        serviceJourney {{
-          journeyPattern {{
-            line {{
-              publicCode
-            }}
-          }}
-        }}
-      }}
-    }}
-  }}"""
-
-api_url = 'https://api.entur.io/journey-planner/v2/graphql'
-
-iso_datestring = "%Y-%m-%dT%H:%M:%S%z"
+from .constants import QUERY_STOP_PLACE, API_URL, ISO_FORMAT
 
 class StopPlace():
   """Stop place object.
@@ -43,22 +17,22 @@ class StopPlace():
   """
   def __init__(self, nsr_id, header, noDepartures = 20):
     self.id = nsr_id
-    self.query = query_template.format(self.id, noDepartures)
-    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
+    self.query = QUERY_STOP_PLACE.format(self.id, noDepartures)
+    r = requests.post(API_URL, json={'query': self.query}, headers={'ET-Client-Name': 'kmaasrud - pythentur'}) # TODO: Not all requests should go through me. Require custom header.
     json_data = json.loads(r.text)['data']['stopPlace']
-    self.name = json_data['name'] # TODO: Not always available. Constructor must handle this.
+    self.name = json_data['name']
     self.header = header
 
   def get(self):
     """Retrieves list of dictionaries, containing templated data."""
-    r = requests.post(api_url, json={'query': self.query}, headers={'ET-Client-Name': self.header})
+    r = requests.post(API_URL, json={'query': self.query}, headers={'ET-Client-Name': self.header})
     json_data = json.loads(r.text)['data']['stopPlace']
 
     now = datetime.now(timezone.utc)
     data = []
     for call in json_data['estimatedCalls']:
-      expected = datetime.strptime(call['expectedArrivalTime'], iso_datestring)
-      aimed = datetime.strptime(call['aimedArrivalTime'], iso_datestring)
+      expected = datetime.strptime(call['expectedArrivalTime'], ISO_FORMAT)
+      aimed = datetime.strptime(call['aimedArrivalTime'], ISO_FORMAT)
       data.append({
           'platform': call['quay']['publicCode'],
           'line': call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText'],
@@ -70,6 +44,17 @@ class StopPlace():
       })
 
     return data
+
+  def __setitem__(self, key, value)
+
+  def __getitem__(self, key):
+    pass
+
+  def __repr__(self):
+    pass
+
+  def __str__(self):
+    pass
 
 if __name__ == "__main__":
   pass
