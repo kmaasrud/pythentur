@@ -95,6 +95,8 @@ class Platform(Location):
     self.n_calls = 20 # Perhaps not necessary
     self.calls = [0] * self.n_calls # TODO: Method to change this
 
+    # TODO: Platforms with weird int, null or empty string names.
+
   def call(self, i):
     """Realtime method to fetch the i-th call from the parent Platform."""
     i = int(i)
@@ -120,6 +122,11 @@ class Platform(Location):
   def __getitem__(self, i):
     self.call(i)
     return self.calls[i]
+
+  # TODO: Iterator
+
+  def __len__(self):
+    return self.n_calls
 
   def __repr__(self):
     return self.id
