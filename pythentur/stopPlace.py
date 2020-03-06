@@ -5,25 +5,35 @@ from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.parse import quote
 
-from .helpers import QUERY_STOP_PLACE, QUERY_COORDS, API_URL, ISO_FORMAT, GEOCODER_URL
+from .helpers import COORDS_QUERY_STOP_PLACE, COORDS_QUERY_PLATFORM, QUERY_CALLS, API_URL, ISO_FORMAT, GEOCODER_URL
 from .helpers import prettyTime
 from . import Location
+
+# ---------------------------------------------------------------------------------------
 
 class StopPlace(Location):
   """Stop place object.
 
   Args:
-    nsr_id (str): The NSR ID of the requested stop place.
+    stop_place_id (str): The NSR ID of the requested stop place.
     header (str): Header string in the format 'company - application'
   """
 
-  def __init__(self, nsr_id, header):
-    self.id = nsr_id
+  # If stop place has many platforms, init is a bit slow.
+  def __init__(self, stop_place_id, header):
+    self.id = stop_place_id
     self.header = header
     self.n_departures = 20
-    r = requests.post(API_URL, json={'query': QUERY_COORDS.format(nsr_id)}, headers={'ET-Client-Name': self.header})
+
+    r = requests.post(API_URL,
+      json={'query': COORDS_QUERY_STOP_PLACE.format(stop_place_id)},
+      headers={'ET-Client-Name': header}
+    )
+
     self.data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['stopPlace']
     self.zones = [zone['id'] for zone in self.data['tariffZones']]
+    self.platforms = [Platform(quay['id'], header) for quay in self.data['quays']]
+
     super().__init__(self.data['latitude'], self.data['longitude'], self.header)
 
   @classmethod
@@ -31,28 +41,85 @@ class StopPlace(Location):
     """Alternative initializer that returns the first stop place matching a query string.
 
     Args:
-      query (str): Search text to
+      query (str): Search string.
+      header (str): Header string in the format 'company - application'
     """
-    query = query.replace(" ", "%20")
     url = GEOCODER_URL + '/autocomplete?text={}&size=1&layers=venue&lang=en'.format(quote(query))
     req = Request(url, headers={'ET-Client-Name': header})
     with urlopen(req) as request:
         json_data = json.loads(request.read().decode())
 
-    nsr_id = json_data['features'][0]['properties']['id']
+    stop_place_id = json_data['features'][0]['properties']['id']
 
-    return cls(nsr_id, header)
+    return cls(stop_place_id, header)
+
+  def __getitem__(self, key):
+    if key in [platform.name for platform in self.platforms]:
+      return [platform for platform in self.platforms if platform.name == key][0]
+
+    return getattr(self, key)
+
+  def __len__(self):
+    return len(self.platforms)
 
   def __repr__(self):
-    return "StopPlace('{}', '{}')".format(self.id, self.header)
+    return self.id
 
   def __str__(self):
     return "Stop place: " + self.name
 
+# ---------------------------------------------------------------------------------------
+
+class Platform(Location):
+  """Doc"""
+  def __init__(self, quay_id, header):
+    self.id = quay_id
+    self.header = header
+
+    r = requests.post(API_URL,
+      json={'query': COORDS_QUERY_PLATFORM.format(quay_id)},
+      headers={'ET-Client-Name': header}
+    )
+
+    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']
+    super().__init__(data['latitude'], data['longitude'], self.header)
+    self.transport_modes = set([line['transportMode'] for line in data['lines']])
+    self.name = data['publicCode'] # Overrides Location.name
+    self.n_calls = 20 # Perhaps not necessary
+    self.calls = [0] * self.n_calls # TODO: Method to change this
+
+  def call(self, i):
+    i = int(i)
+    r = requests.post(API_URL,
+      json={'query': QUERY_CALLS.format(self.id, i + 1)},
+      headers={'ET-Client-Name': self.header}
+    )
+
+    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']['estimatedCalls'][i]
+    self[i] = {
+      'aimed': data['aimedArrivalTime'],
+      'expected': data['expectedArrivalTime'],
+      'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
+      'destination': data['destinationDisplay']['frontText']
+    }
+
+  def __setitem__(self, i, value):
+    self.calls[int(i)] = value
+
+  def __getitem__(self, i):
+    self.call(i)
+    return self.calls[i]
+
+  def __repr__(self):
+    return self.id
+
+  def __str__(self):
+    return "Platform " + self.name
+
+# ---------------------------------------------------------------------------------------
+
 if __name__ == "__main__":
-  header = 'kmaasrud - pythentur'
-  fyrstikktorget = StopPlace.from_string('fyrstikktorget', header)
-  print(fyrstikktorget)
+  pass
 
 
 # def get(self):

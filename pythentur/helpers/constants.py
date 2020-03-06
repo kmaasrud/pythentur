@@ -4,25 +4,35 @@ GEOCODER_URL = 'https://api.entur.io/geocoder/v1'
 
 ISO_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
-QUERY_COORDS = """{{
+COORDS_QUERY_STOP_PLACE = """{{
   stopPlace(id: \"{}\") {{
     latitude
     longitude
     tariffZones {{
       id
     }}
+    quays {{
+      id
+    }}
   }}
 }}"""
 
-QUERY_STOP_PLACE = """{{
-  stopPlace(id: \"{}\") {{
-      name
+COORDS_QUERY_PLATFORM = """{{
+  quay(id: \"{}\") {{
+    latitude
+    longitude
+    publicCode
+    lines {{
+      transportMode
+    }}
+  }}
+}}"""
+
+QUERY_CALLS = """{{
+  quay(id: \"{}\") {{
       estimatedCalls(timeRange: 72100, numberOfDepartures: {}) {{
         aimedArrivalTime
         expectedArrivalTime
-        quay {{
-          publicCode
-        }}
         destinationDisplay {{
           frontText
         }}
