@@ -25,6 +25,9 @@ COORDS_QUERY_PLATFORM = """{{
     lines {{
       transportMode
     }}
+    stopPlace {{
+      name
+    }}
   }}
 }}"""
 

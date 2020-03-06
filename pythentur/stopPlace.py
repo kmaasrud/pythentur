@@ -13,11 +13,11 @@ from . import Location
 # ---------------------------------------------------------------------------------------
 
 class StopPlace(Location):
-  """Stop place object.
+  """Stop place object. Subclass of Location.
 
   Args:
     stop_place_id (str): The NSR ID of the requested stop place.
-    header (str): Header string in the format 'company - application'
+    header (str): Header string in the format 'company - application'.
   """
 
   # If stop place has many platforms, init is a bit slow.
@@ -43,7 +43,7 @@ class StopPlace(Location):
 
     Args:
       query (str): Search string.
-      header (str): Header string in the format 'company - application'
+      header (str): Header string in the format 'company - application'.
     """
     url = GEOCODER_URL + '/autocomplete?text={}&size=1&layers=venue&lang=en'.format(quote(query))
     req = Request(url, headers={'ET-Client-Name': header})
@@ -72,7 +72,12 @@ class StopPlace(Location):
 # ---------------------------------------------------------------------------------------
 
 class Platform(Location):
-  """Doc"""
+  """Platform (quay) object. Subclass of Location.
+
+  Args:
+    quay_id (str): The NSR ID of the requested platform/quay.
+    header (str): Header string in the format 'company - application'.
+  """
   def __init__(self, quay_id, header):
     self.id = quay_id
     self.header = header
@@ -86,10 +91,12 @@ class Platform(Location):
     super().__init__(data['latitude'], data['longitude'], self.header)
     self.transport_modes = set([line['transportMode'] for line in data['lines']])
     self.name = data['publicCode'] # Overrides Location.name
+    self.parent = data['stopPlace']['name'] # Name of the parent stop place.
     self.n_calls = 20 # Perhaps not necessary
     self.calls = [0] * self.n_calls # TODO: Method to change this
 
   def call(self, i):
+    """Realtime method to fetch the i-th call from the parent Platform."""
     i = int(i)
     now = datetime.now(timezone.utc)
 
@@ -101,7 +108,7 @@ class Platform(Location):
     data = json.loads(r.text)['data']['quay']['estimatedCalls'][i]
     aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
     expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
-    self[i] = {
+    self.calls[i] = {
       'aimed': aimed,
       'expected': expected,
       'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
@@ -109,9 +116,6 @@ class Platform(Location):
       'delay': expected - aimed,
       'readableTime': prettyTime((expected - now).seconds)
     }
-
-  def __setitem__(self, i, value):
-    self.calls[int(i)] = value
 
   def __getitem__(self, i):
     self.call(i)
