@@ -79,6 +79,7 @@ class Platform(Location):
     header (str): Header string in the format 'company - application'.
   """
   def __init__(self, quay_id, header):
+    self.iter = 0
     self.id = quay_id
     self.header = header
 
@@ -123,7 +124,16 @@ class Platform(Location):
     self.call(i)
     return self.calls[i]
 
-  # TODO: Iterator
+  def __iter__(self):
+    return self
+
+  def __next__(self):
+    if self.iter >= self.n_calls:
+      self.iter = 0
+      raise StopIteration
+    call = self[self.iter]
+    self.iter += 1
+    return call
 
   def __len__(self):
     return self.n_calls
