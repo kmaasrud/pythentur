@@ -10,7 +10,7 @@ def prettyTime(diffInSecs):
     unit, number = 'second', abs(diffInSecs)
     for new_unit, ratio in intervals:
         new_number = float(number) / ratio
-        if new_number < 2:
+        if new_number < 1:
             break
         unit, number = new_unit, new_number
     shown_num = int(number)

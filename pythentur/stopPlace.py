@@ -90,17 +90,23 @@ class Platform(Location):
 
   def call(self, i):
     i = int(i)
+    now = datetime.now(timezone.utc)
+
     r = requests.post(API_URL,
       json={'query': QUERY_CALLS.format(self.id, i + 1)},
       headers={'ET-Client-Name': self.header}
     )
 
     data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']['estimatedCalls'][i]
+    aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
+    expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
     self[i] = {
-      'aimed': data['aimedArrivalTime'],
-      'expected': data['expectedArrivalTime'],
+      'aimed': aimed,
+      'expected': expected,
       'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
-      'destination': data['destinationDisplay']['frontText']
+      'destination': data['destinationDisplay']['frontText'],
+      'delay': expected - aimed,
+      'readableTime': prettyTime((expected - now).seconds)
     }
 
   def __setitem__(self, i, value):
