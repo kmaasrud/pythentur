@@ -7,6 +7,7 @@ from urllib.parse import quote
 
 from .helpers import COORDS_QUERY_STOP_PLACE, COORDS_QUERY_PLATFORM, QUERY_CALLS, API_URL, ISO_FORMAT, GEOCODER_URL
 from .helpers import prettyTime
+from .helpers import decode1252
 from . import Location
 
 # ---------------------------------------------------------------------------------------
@@ -97,14 +98,14 @@ class Platform(Location):
       headers={'ET-Client-Name': self.header}
     )
 
-    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']['estimatedCalls'][i]
+    data = json.loads(r.text)['data']['quay']['estimatedCalls'][i]
     aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
     expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
     self[i] = {
       'aimed': aimed,
       'expected': expected,
       'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
-      'destination': data['destinationDisplay']['frontText'],
+      'destination': decode1252(data['destinationDisplay']['frontText']),
       'delay': expected - aimed,
       'readableTime': prettyTime((expected - now).seconds)
     }
