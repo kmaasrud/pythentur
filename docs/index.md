@@ -1,3 +1,9 @@
-# Welcome to MkDocs
+# Installation
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Install using pip
+
+```
+pip install pythentur
+```
+
+or clone the [GitHub repository](https://github.com/kmaasrud/pythentur) and install locally.
