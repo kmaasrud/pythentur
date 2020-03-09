@@ -1,6 +1,7 @@
 # Necessary imports
 import requests
 import json
+import operator
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.parse import quote
@@ -57,6 +58,8 @@ class StopPlace(Location):
   def __getitem__(self, key):
     if key in [platform.name for platform in self.platforms]:
       return [platform for platform in self.platforms if platform.name == key][0]
+    elif key in [platform.id for platform in self.platforms]:
+      return [platform for platform in self.platforms if platform.id == key][0]
 
     return getattr(self, key)
 
@@ -91,12 +94,10 @@ class Platform(Location):
     data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']
     super().__init__(data['latitude'], data['longitude'], self.header)
     self.transport_modes = set([line['transportMode'] for line in data['lines']])
-    self.name = data['publicCode'] # Overrides Location.name
+    self.name = data['publicCode'] if data['publicCode'] else self.id # Overrides Location.name
     self.parent = data['stopPlace']['name'] # Name of the parent stop place.
     self.n_calls = 20 # Perhaps not necessary
-    self.calls = [0] * self.n_calls # TODO: Method to change this
-
-    # TODO: Platforms with weird int, null or empty string names.
+    self.calls = [None] * self.n_calls # TODO: Method to change this
 
   def call(self, i):
     """Realtime method to fetch the i-th call from the parent Platform."""
@@ -139,32 +140,12 @@ class Platform(Location):
     return self.n_calls
 
   def __repr__(self):
-    return self.id
+    return self.name
 
   def __str__(self):
-    return "Platform " + self.name
+    return "Platform {} on {}".format(self.name, self.parent)
 
 # ---------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
   pass
-
-
-# def get(self):
-#   """Retrieves list of dictionaries, containing templated data."""
-#   r = requests.post(API_URL, json={'query': self.query}, headers={'ET-Client-Name': self.header})
-#   json_data = json.loads(r.text)['data']['stopPlace']
-
-#   now = datetime.now(timezone.utc)
-#   data = []
-#   for call in json_data['estimatedCalls']:
-#     expected = datetime.strptime(call['expectedArrivalTime'], ISO_FORMAT)
-#     aimed = datetime.strptime(call['aimedArrivalTime'], ISO_FORMAT)
-#     data.append({
-#         'platform': call['quay']['publicCode'],
-#         'line': call['serviceJourney']['journeyPattern']['line']['publicCode']+" "+call['destinationDisplay']['frontText'],
-#         'aimedArrivalTime': aimed,
-#         'expectedArrivalTime': expected,
-#         'delay': expected - aimed,
-#         'readableTime': prettyTime((expected - now).seconds)
-#     })
