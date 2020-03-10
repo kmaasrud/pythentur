@@ -10,5 +10,5 @@ Every stop place in the National Stop Register can become a Python-friendly `Sto
 | :--------- | :-------------------------- |
 | `StopPlace.name` | The name of the stop place. |
 | `StopPlace.id` | The NSR ID of the stop place. |
-| `StopPlace.platforms` | List of all the stop place's platforms. Each of these platforms are a [`Platform`](platform.md) object, and can be accessed through their `name` or their `id`. |
-| `StopPlace.zones` | The tariff zones the stop place is a part of. |
+| `StopPlace.platforms` | List of all the stop place's platforms. Each of these platforms are a [`Platform`](platform.md) object, and can be accessed with their `name` or  `id` as a key. |
+| `StopPlace.zones` | A list of the tariff zones the stop place is a part of. |

@@ -1,7 +1,14 @@
 site_name: Pythentur Docs
+plugins:
+  - search
 
 theme:
-  name: gitbook
+  name: material
+  palette:
+    primary: cyan
+
+repo_name: 'kmaasrud/pythentur'
+repo_url: 'https://github.com/kmaasrud/pythentur'
 
 pages:
   - 'Introduction': 'introduction.md'
