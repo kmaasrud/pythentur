@@ -2,10 +2,6 @@
 
 Pythentur makes retrieving public transport data from Entur dead simple.
 
-## Getting started
-
-- [Welcome to Pythentur](#welcome-to-pythentur)
-  - [Getting started](#getting-started)
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 
@@ -27,7 +23,7 @@ Here's how to get data about the first incoming transport from platform H of the
 >>> from pythentur import StopPlace
 >>> header = '<company> - <application>'
 >>> majorstuen = StopPlace.from_string('Majorstuen', header)
->>> majorstuen['H'][0]
+>>> majorstuen['G'][0]
 {
   'line': '46',
   'destination': 'Ullerntoppen',
@@ -51,4 +47,13 @@ NSR:Quay:8067]
 
 This isn't too easy to decode, obviously, but a quick check on [Entur](https://entur.no/avgangstavle) should show you which platforms are on each stop in a more human-friendly manner. 
 
-The transport calls from each platform are accessed through the corresponding index, and are always up to date when you access them. 
+The transport calls from each platform are accessed through the corresponding index, and are always up to date when you access them. For example, accessing the first element of platform G twice always gives me the result at that specific time.
+
+```python
+>>> majorstuen['1'][0]['destination']
+'Ellingsrudåsen'
+>>> majorstuen['1'][0]['destination']
+'Mortensrud'
+```
+
+For the time being, the list of calls is limited to 20 elements. This should however suffice for most cases.

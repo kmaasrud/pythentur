@@ -25,18 +25,17 @@ class StopPlace(Location):
   def __init__(self, stop_place_id, header):
     self.id = stop_place_id
     self.header = header
-    self.n_departures = 20
 
     r = requests.post(API_URL,
       json={'query': COORDS_QUERY_STOP_PLACE.format(stop_place_id)},
       headers={'ET-Client-Name': header}
     )
 
-    self.data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['stopPlace']
-    self.zones = [zone['id'] for zone in self.data['tariffZones']]
-    self.platforms = [Platform(quay['id'], header) for quay in self.data['quays'] if quay['estimatedCalls']]
+    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['stopPlace']
+    self.zones = [zone['id'] for zone in data['tariffZones']]
+    self.platforms = [Platform(quay['id'], header) for quay in data['quays'] if quay['estimatedCalls']]
 
-    super().__init__(self.data['latitude'], self.data['longitude'], self.header)
+    super().__init__(data['latitude'], data['longitude'], self.header)
 
   @classmethod
   def from_string(cls, query, header):

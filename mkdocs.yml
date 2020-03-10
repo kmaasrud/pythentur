@@ -3,4 +3,9 @@ site_name: Pythentur Docs
 theme:
   name: gitbook
 
-extra_css: [extra.css]
+pages:
+  - 'Introduction': 'introduction.md'
+  - 'User guide':
+    - 'The StopPlace object': 'userguide/stopplace.md'
+    - 'The Location object': 'userguide/location.md'
+    - 'The Platform object': 'userguide/platform.md'
