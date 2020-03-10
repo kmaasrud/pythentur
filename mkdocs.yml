@@ -2,3 +2,5 @@ site_name: Pythentur Docs
 
 theme:
   name: gitbook
+
+extra_css: extra.css
