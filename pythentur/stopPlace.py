@@ -34,7 +34,7 @@ class StopPlace(Location):
 
     self.data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['stopPlace']
     self.zones = [zone['id'] for zone in self.data['tariffZones']]
-    self.platforms = [Platform(quay['id'], header) for quay in self.data['quays']]
+    self.platforms = [Platform(quay['id'], header) for quay in self.data['quays'] if quay['estimatedCalls']]
 
     super().__init__(self.data['latitude'], self.data['longitude'], self.header)
 
@@ -70,7 +70,7 @@ class StopPlace(Location):
     return self.id
 
   def __str__(self):
-    return "Stop place: " + self.name
+    return self.name
 
 # ---------------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ class Platform(Location):
     data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']
     super().__init__(data['latitude'], data['longitude'], self.header)
     self.transport_modes = set([line['transportMode'] for line in data['lines']])
-    self.name = data['publicCode'] if data['publicCode'] else self.id # Overrides Location.name
+    self.name = data['publicCode'] # Overrides Location.name
     self.parent = data['stopPlace']['name'] # Name of the parent stop place.
     self.n_calls = 20 # Perhaps not necessary
     self.calls = [None] * self.n_calls # TODO: Method to change this
@@ -113,10 +113,10 @@ class Platform(Location):
     aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
     expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
     self.calls[i] = {
-      'aimed': aimed,
-      'expected': expected,
       'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
       'destination': decode1252(data['destinationDisplay']['frontText']),
+      'aimed': aimed,
+      'expected': expected,
       'delay': expected - aimed,
       'readableTime': prettyTime((expected - now).seconds)
     }
@@ -140,10 +140,10 @@ class Platform(Location):
     return self.n_calls
 
   def __repr__(self):
-    return self.name
+    return self.id
 
   def __str__(self):
-    return "Platform {} on {}".format(self.name, self.parent)
+    return "{} {}".format(self.parent, self.name)
 
 # ---------------------------------------------------------------------------------------
 

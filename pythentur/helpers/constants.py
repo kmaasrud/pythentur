@@ -13,6 +13,9 @@ COORDS_QUERY_STOP_PLACE = """{{
     }}
     quays {{
       id
+      estimatedCalls(numberOfDepartures: 1) {{
+        date
+      }}
     }}
   }}
 }}"""
