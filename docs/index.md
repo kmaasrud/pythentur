@@ -30,7 +30,8 @@ Here's how to get data about the first incoming transport from platform H of the
   'aimed': datetime.datetime(2020, 3, 10, 12, 48, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))),
   'expected': datetime.datetime(2020, 3, 10, 12, 48, tzinfo=datetime.timezone(datetime.timedelta(seconds=3600))),
   'delay': datetime.timedelta(0),
-  'readableTime': '2 minutes'}
+  'readableTime': '2 minutes'
+}
 ```
 
 Entur requires every user of its API to identify themselves through a header. Just pass the name of your company and application (in the format shown above) to the constructor.
