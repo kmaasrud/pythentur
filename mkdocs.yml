@@ -11,7 +11,7 @@ repo_name: 'kmaasrud/pythentur'
 repo_url: 'https://github.com/kmaasrud/pythentur'
 
 pages:
-  - 'Introduction': 'introduction.md'
+  - 'Introduction': 'index.md'
   - 'User guide':
     - 'The StopPlace object': 'userguide/stopplace.md'
     - 'The Location object': 'userguide/location.md'
