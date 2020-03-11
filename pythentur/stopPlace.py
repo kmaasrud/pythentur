@@ -31,7 +31,7 @@ class StopPlace(Location):
 
   # If stop place has many platforms, init is a bit slow.
   def __init__(self, stop_place_id, header):
-    self.iter = 0
+    self._iter = 0
     self.id = stop_place_id
     self.header = header
 
@@ -71,11 +71,11 @@ class StopPlace(Location):
     return self
 
   def __next__(self):
-    if self.iter >= len(self):
-      self.iter = 0
+    if self._iter >= len(self):
+      self._iter = 0
       raise StopIteration
-    platform = self.platforms[self.iter]
-    self.iter += 1
+    platform = self.platforms[self._iter]
+    self._iter += 1
     return platform
 
   def __len__(self):
@@ -97,7 +97,7 @@ class Platform(Location):
     header (str): Header string in the format 'company - application'.
   """
   def __init__(self, quay_id, header):
-    self.iter = 0
+    self._iter = 0
     self.id = quay_id
     self.header = header
 
@@ -152,16 +152,16 @@ class Platform(Location):
 
   def __next__(self):
     """Goes to the next call, if it exists and does not have an index greater than n_calls"""
-    if self.iter >= self.n_calls:
-      self.iter = 0
+    if self._iter >= self.n_calls:
+      self._iter = 0
       raise StopIteration
     try:
-      call = self.call(self.iter)
+      call = self.call(self._iter)
     except IndexError:
-      self.iter = 0
+      self._iter = 0
       raise StopIteration
     else:
-      self.iter += 1
+      self._iter += 1
       return call
 
   def __len__(self):
