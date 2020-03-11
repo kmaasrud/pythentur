@@ -11,6 +11,14 @@ from .helpers import prettyTime
 from .helpers import decode1252
 from . import Location
 
+def post_to_api(query, nsr_id, header, encode=True):
+  r = requests.post(API_URL,
+    json={'query': query.format(nsr_id)},
+    headers={'ET-Client-Name': header}
+  )
+
+  return json.loads(r.text.encode('cp1252').decode('utf-8'))['data']
+
 # ---------------------------------------------------------------------------------------
 
 class StopPlace(Location):
@@ -23,15 +31,12 @@ class StopPlace(Location):
 
   # If stop place has many platforms, init is a bit slow.
   def __init__(self, stop_place_id, header):
+    self.iter = 0
     self.id = stop_place_id
     self.header = header
 
-    r = requests.post(API_URL,
-      json={'query': COORDS_QUERY_STOP_PLACE.format(stop_place_id)},
-      headers={'ET-Client-Name': header}
-    )
+    data = post_to_api(COORDS_QUERY_STOP_PLACE, stop_place_id, self.header)['stopPlace']
 
-    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['stopPlace']
     self.zones = [zone['id'] for zone in data['tariffZones']]
     self.platforms = [Platform(quay['id'], header) for quay in data['quays'] if quay['estimatedCalls']]
 
@@ -62,6 +67,17 @@ class StopPlace(Location):
 
     return getattr(self, key)
 
+  def __iter__(self):
+    return self
+
+  def __next__(self):
+    if self.iter >= len(self):
+      self.iter = 0
+      raise StopIteration
+    platform = self.platforms[self.iter]
+    self.iter += 1
+    return platform
+
   def __len__(self):
     return len(self.platforms)
 
@@ -85,13 +101,10 @@ class Platform(Location):
     self.id = quay_id
     self.header = header
 
-    r = requests.post(API_URL,
-      json={'query': COORDS_QUERY_PLATFORM.format(quay_id)},
-      headers={'ET-Client-Name': header}
-    )
+    data = post_to_api(COORDS_QUERY_PLATFORM, self.id, self.header)['quay']
 
-    data = json.loads(r.text.encode('cp1252').decode('utf-8'))['data']['quay']
     super().__init__(data['latitude'], data['longitude'], self.header)
+
     self.transport_modes = set([line['transportMode'] for line in data['lines']])
     self.name = data['publicCode'] # Overrides Location.name
     self.parent = data['stopPlace']['name'] # Name of the parent stop place.
@@ -101,42 +114,59 @@ class Platform(Location):
   def call(self, i):
     """Realtime method to fetch the i-th call from the parent Platform."""
     i = int(i)
-    now = datetime.now(timezone.utc)
+    if i >= self.n_calls: return None
 
     r = requests.post(API_URL,
       json={'query': QUERY_CALLS.format(self.id, i + 1)},
       headers={'ET-Client-Name': self.header}
     )
 
-    data = json.loads(r.text)['data']['quay']['estimatedCalls'][i]
-    aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
-    expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
-    self.calls[i] = {
-      'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
-      'destination': decode1252(data['destinationDisplay']['frontText']),
-      'aimed': aimed,
-      'expected': expected,
-      'delay': expected - aimed,
-      'readableTime': prettyTime((expected - now).seconds)
-    }
+    try:
+      data = json.loads(r.text)['data']['quay']['estimatedCalls'][i]
+    except IndexError:
+      del self.calls[i:]
+      raise IndexError('No more calls available at this moment.')
+    else:
+      aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
+      expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
+      self.calls[i] = {
+        'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
+        'destination': decode1252(data['destinationDisplay']['frontText']),
+        'aimed': aimed,
+        'expected': expected,
+        'delay': expected - aimed,
+        'readableTime': prettyTime((expected - datetime.now(timezone.utc)).seconds)
+      }
+      return self.calls[i]
+
+  def get_all(self):
+    """Returns an updated list of all 20 calls from this platform."""
+    self.calls = [call for call in self]
+    return self.calls
 
   def __getitem__(self, i):
-    self.call(i)
-    return self.calls[i]
+    return self.call(i)
 
   def __iter__(self):
     return self
 
   def __next__(self):
+    """Goes to the next call, if it exists and does not have an index greater than n_calls"""
     if self.iter >= self.n_calls:
       self.iter = 0
       raise StopIteration
-    call = self[self.iter]
-    self.iter += 1
-    return call
+    try:
+      call = self.call(self.iter)
+    except IndexError:
+      self.iter = 0
+      raise StopIteration
+    else:
+      self.iter += 1
+      return call
 
   def __len__(self):
-    return self.n_calls
+    self.get_all()
+    return len(self.calls)
 
   def __repr__(self):
     return self.id
