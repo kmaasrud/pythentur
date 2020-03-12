@@ -2,7 +2,7 @@
 
 Every stop place in the National Stop Register (NSR) can become a Python-friendly `StopPlace`. Every `StopPlace` contains a number of [`Platforms`](platform.md), which are the main interface to fetch transport data.
 
-`StopPlace` is a subclass of [`Location`](location.md) and does thus contain geographic data like coordinates and locality. This is further explained in [the Location docs](location.md#attributes).
+`StopPlace` is a subclass of [`Location`](location.md) and does thus contain geographic data like coordinates and locality. This is further explained in [The Location Object](location.md#attributes).
 
 # Constructing
 
@@ -16,7 +16,9 @@ As an example,
 ```python
 from pythentur import StopPlace
 
-oslo_s = StopPlace('NSR:StopPlace:59872', header = 'foo_company - bar_app')
+oslo_s = StopPlace(
+    'NSR:StopPlace:59872', header = 'foo_company - bar_app'
+)
 ```
 
 would make `oslo_s` a `StopPlace` object for Oslo Central Station.
@@ -25,12 +27,14 @@ For larger stop places with many platforms, this might take a few seconds, since
 
 ## Using `from_string`
 
-To avoid having to look up the NSR ID of a stop place, an alternative way of constructing a `StopPlace` is supplied. `from_string` takes a searchstring and the `"ET-Client-Name"` header as parameters, and return the first stop place matching that string.
+To avoid having to look up the NSR ID of a stop place, an alternative way of constructing a `StopPlace` is supplied. `from_string` takes a searchstring and the `"ET-Client-Name"` header as parameters, and returns the first stop place matching that string.
 
 ```python
 from pythentur import StopPlace
 
-nationaltheatret = StopPlace.from_string('nationaltheatret', header = 'foo_company - bar_app')
+nationaltheatret = StopPlace.from_string(
+    'nationaltheatret', header = 'foo_company - bar_app'
+)
 ```
 
 # Attributes
