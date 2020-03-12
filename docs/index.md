@@ -5,7 +5,7 @@ Pythentur makes retrieving public transport data from Entur dead simple.
 - [Installation](#installation)
 - [Quickstart](#quickstart)
 
-# Installation
+## Installation
 
 Install using pip
 
@@ -15,7 +15,7 @@ pip install pythentur
 
 or clone the [GitHub repository](https://github.com/kmaasrud/pythentur) and install locally.
 
-# Quickstart
+## Quickstart
 
 Here's how to get data about the first incoming transport from platform H of the stop place Majorstuen:
 

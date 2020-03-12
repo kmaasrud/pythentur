@@ -4,7 +4,7 @@ Every stop place in the National Stop Register (NSR) can become a Python-friendl
 
 `StopPlace` is a subclass of [`Location`](location.md) and does thus contain geographic data like coordinates and locality. This is further explained in [The Location Object](location.md#attributes).
 
-# Constructing
+## Constructing
 
 To construct a `StopPlace`, you need the NSR stop place ID and Entur's required `"ET-Client-Name"` header.
 
@@ -25,7 +25,7 @@ would make `oslo_s` a `StopPlace` object for Oslo Central Station.
 
 For larger stop places with many platforms, this might take a few seconds, since the API is queried for each platform. 
 
-## Using `from_string`
+### Using `from_string`
 
 To avoid having to look up the NSR ID of a stop place, an alternative way of constructing a `StopPlace` is supplied. `from_string` takes a searchstring and the `"ET-Client-Name"` header as parameters, and returns the first stop place matching that string.
 
@@ -37,7 +37,7 @@ nationaltheatret = StopPlace.from_string(
 )
 ```
 
-# Attributes
+## Attributes
 
 | Attribute  | Description |
 | :--------- | :-------------------------- |
