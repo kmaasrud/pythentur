@@ -10,11 +10,13 @@ theme:
 repo_name: 'kmaasrud/pythentur'
 repo_url: 'https://github.com/kmaasrud/pythentur'
 
+markdown_extensions:
+  -toc:
+    permalink: true
+
 pages:
   - 'Introduction': 'index.md'
   - 'User guide':
     - 'The StopPlace object': 'userguide/stopplace.md'
-      - 'Constructing': 'userguide/stopplace.md#constructing'
-      - 'Attributes': 'userguide/stopplace.md#attributes'
     - 'The Location object': 'userguide/location.md'
     - 'The Platform object': 'userguide/platform.md'
