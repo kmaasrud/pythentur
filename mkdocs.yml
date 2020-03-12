@@ -12,7 +12,7 @@ repo_url: 'https://github.com/kmaasrud/pythentur'
 
 markdown_extensions:
   - admonition
-  - toc(permalink=true)
+  - toc
 
 pages:
   - 'Introduction': 'index.md'
