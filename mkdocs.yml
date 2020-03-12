@@ -11,7 +11,7 @@ repo_name: 'kmaasrud/pythentur'
 repo_url: 'https://github.com/kmaasrud/pythentur'
 
 markdown_extensions:
-  - toc:
+  toc:
     permalink: true
 
 pages:
