@@ -1,8 +1,10 @@
-import requests
+from requests import post
 import json
 from datetime import datetime, timezone
 
-from .helpers.constants import ISO_FORMAT, API_URL, QUERY_JOURNEY
+from . import StopPlace
+from .helpers import ISO_FORMAT, API_URL, QUERY_JOURNEY
+from .helpers import post_to_api
 
 class Journey():
     """Object containing a journey from one place to another.
@@ -16,53 +18,67 @@ class Journey():
         time (datetime): Time of departure, as a datetime object. (default: now)
         noDepartures (int): Number of routes to fetch. (default: 20)
     """
-    def __init__(self, fromPlace, toPlace, header, time = None, noDepartures = 20):
-        self.fromPlace = fromPlace
-        self.toPlace = toPlace
+    def __init__(self, fromPlace, toPlace, header, time = datetime.now(timezone.utc)):
+        self._from = fromPlace
+        self.fromPlace = fromPlace.name
+        self._to = toPlace
+        self.toPlace = toPlace.name
         self.header = header
-        self.time = time
-        self.query_formatter = {'from': fromPlace, 'to': toPlace, 'noDepartures': noDepartures}
+        self.time = time.strftime(ISO_FORMAT)
+        self.n_trips = 20
+        self.trips = [None] * self.n_trips
 
-    def get(self):
-        if self.time is None: self.query_formatter['time'] = datetime.now(timezone.utc).strftime(ISO_FORMAT)
-        else: self.query_formatter['time'] = self.time.strftime(ISO_FORMAT)
-        query = QUERY_JOURNEY.format(**self.query_formatter)
-        r = requests.post(API_URL, json={'query': query}, headers={'ET-Client-Name': self.header})
-        json_data = json.loads(r.text)['data']['trip']['tripPatterns']
+    @classmethod
+    def from_string(cls, fromPlace, toPlace, header, time = datetime.now(timezone.utc)):
+        from_ = StopPlace.from_string(fromPlace, header)
+        to_ = StopPlace.from_string(toPlace, header)
 
-        data = []
-        for trip in json_data:
-            duration = trip['duration']
-            legs = []
-            for leg in trip['legs']:
-                if leg['mode'] == 'foot':
-                    legs.append({
-                        'transportMode': leg['mode'],
-                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
-                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
-                        'fromName': leg['fromPlace']['quay']['stopPlace']['name'], # TODO: Needs a fix for when the departure place is not a stop place.
-                        'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
-                        'toName': leg['toPlace']['quay']['stopPlace']['name'], # TODO: See above
-                        'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
-                    })
-                else:
-                    legs.append({
-                        'transportMode': leg['mode'],
-                        'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
-                        'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
-                        'lineName': leg['fromEstimatedCall']['destinationDisplay']['frontText'],
-                        'lineNumber': leg['line']['publicCode'],
-                        'lineColor': "#" + leg['line']['presentation']['colour'],
-                        'fromName': leg['fromPlace']['quay']['stopPlace']['name'],
-                        'fromId': leg['fromPlace']['quay']['stopPlace']['id'],
-                        'toName': leg['toPlace']['quay']['stopPlace']['name'],
-                        'toId': leg['toPlace']['quay']['stopPlace']['id']
-                    })
-                # TODO: Add waiting time to legs.
-                # TODO: Add readable time to legs.
-            data.append({'duration': duration, 'legs': legs})
+        return cls(from_, to_, header, time = time)
 
-        return data
+    def trip(self, i):
+        query = QUERY_JOURNEY.format(**{
+            'from': self._from.id, 'to': self._to.id,
+            'time': self.time, 'noDepartures': self.n_trips
+            })
+        r = post(API_URL,
+            json={'query': query},
+            headers={'ET-Client-Name': self.header}
+        )
+        data = json.loads(r.text)['data']
+
+        duration = data['duration']
+        legs = []
+        for leg in data['legs']:
+            if leg['mode'] == 'foot':
+                legs.append({
+                    'transportMode': leg['mode'],
+                    'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
+                    'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
+                    'fromName': leg['fromPlace']['quay']['stopPlace']['name'], # TODO: Needs a fix for when the departure place is not a stop place.
+                    'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
+                    'toName': leg['toPlace']['quay']['stopPlace']['name'], # TODO: See above
+                    'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
+                })
+            else:
+                legs.append({
+                    'transportMode': leg['mode'],
+                    'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
+                    'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
+                    'lineName': leg['fromEstimatedCall']['destinationDisplay']['frontText'],
+                    'lineNumber': leg['line']['publicCode'],
+                    'lineColor': "#" + leg['line']['presentation']['colour'],
+                    'fromName': leg['fromPlace']['quay']['stopPlace']['name'],
+                    'fromId': leg['fromPlace']['quay']['stopPlace']['id'],
+                    'toName': leg['toPlace']['quay']['stopPlace']['name'],
+                    'toId': leg['toPlace']['quay']['stopPlace']['id']
+                })
+
+        self.trips[i] = {'duration': duration, 'legs': legs}
+
+        return self.trips[i]
+
+    def __getitem__(self, i):
+        return self.trip(i)
 
 # TODO: Preferred or banned transport modes.
 

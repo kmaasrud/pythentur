@@ -1,5 +1,5 @@
 # Necessary imports
-import requests
+from requests import post
 import json
 import operator
 from datetime import datetime, timezone
@@ -9,15 +9,8 @@ from urllib.parse import quote
 from .helpers import COORDS_QUERY_STOP_PLACE, COORDS_QUERY_PLATFORM, QUERY_CALLS, API_URL, ISO_FORMAT, GEOCODER_URL
 from .helpers import prettyTime
 from .helpers import decode1252
+from .helpers import post_to_api
 from . import Location
-
-def post_to_api(query, nsr_id, header, encode=True):
-  r = requests.post(API_URL,
-    json={'query': query.format(nsr_id)},
-    headers={'ET-Client-Name': header}
-  )
-
-  return json.loads(r.text.encode('cp1252').decode('utf-8'))['data']
 
 # ---------------------------------------------------------------------------------------
 
@@ -35,7 +28,7 @@ class StopPlace(Location):
     self.id = stop_place_id
     self.header = header
 
-    data = post_to_api(COORDS_QUERY_STOP_PLACE, stop_place_id, self.header)['stopPlace']
+    data = post_to_api(COORDS_QUERY_STOP_PLACE.format(stop_place_id), self.header)['stopPlace']
 
     self.zones = [zone['id'] for zone in data['tariffZones']]
     self.platforms = [Platform(quay['id'], header) for quay in data['quays'] if quay['estimatedCalls']]
@@ -101,7 +94,7 @@ class Platform(Location):
     self.id = quay_id
     self.header = header
 
-    data = post_to_api(COORDS_QUERY_PLATFORM, self.id, self.header)['quay']
+    data = post_to_api(COORDS_QUERY_PLATFORM.format(self.id), self.header)['quay']
 
     super().__init__(data['latitude'], data['longitude'], self.header)
 
@@ -116,7 +109,7 @@ class Platform(Location):
     i = int(i)
     if i >= self.n_calls: return None
 
-    r = requests.post(API_URL,
+    r = post(API_URL,
       json={'query': QUERY_CALLS.format(self.id, i + 1)},
       headers={'ET-Client-Name': self.header}
     )
