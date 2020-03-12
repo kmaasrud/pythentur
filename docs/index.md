@@ -2,9 +2,6 @@
 
 Pythentur makes retrieving public transport data from Entur dead simple.
 
-- [Installation](#installation)
-- [Quickstart](#quickstart)
-
 ## Installation
 
 Install using pip
