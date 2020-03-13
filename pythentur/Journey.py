@@ -7,7 +7,7 @@ from .helpers import ISO_FORMAT, API_URL, QUERY_JOURNEY
 from .helpers import post_to_api, decode1252
 
 class Journey():
-    """Object containing a journey from one place to another.
+    """Object containing a journey from one stop place to another.
 
     Args:
         fromPlace (str): NSR ID of stop place to travel from.
@@ -16,7 +16,6 @@ class Journey():
 
     Keyword args:
         time (datetime): Time of departure, as a datetime object. (default: now)
-        noDepartures (int): Number of routes to fetch. (default: 20)
     """
     def __init__(self, fromPlace, toPlace, header, time = datetime.now(timezone.utc)):
         self._from = fromPlace
@@ -55,8 +54,10 @@ class Journey():
                 'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
                 'fromName': decode1252(leg['fromPlace']['quay']['stopPlace']['name']), # TODO: Needs a fix for when the departure place is not a stop place.
                 'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
+                'fromPlatform': leg['fromPlace']['quay']['publicCode'],
                 'toName': decode1252(leg['toPlace']['quay']['stopPlace']['name']), # TODO: See above
-                'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
+                'toId': leg['toPlace']['quay']['stopPlace']['id'], # TODO: See above
+                'toPlatform': leg['toPlace']['quay']['publicCode']
             })
             if leg['mode'] != 'foot':
                 legs[i]['lineName'] = decode1252(leg['fromEstimatedCall']['destinationDisplay']['frontText'])
@@ -69,6 +70,9 @@ class Journey():
 
     def __getitem__(self, i):
         return self.trip(i)
+
+    def __repr__(self):
+        return '{} -> {}'.format(self.fromPlace, self.toPlace)
 
 # TODO: Preferred or banned transport modes.
 

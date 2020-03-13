@@ -79,13 +79,13 @@ QUERY_JOURNEY = """{{
         }}
         line {{
           publicCode
-          name
           presentation {{
             colour
           }}
         }}
         fromPlace{{
           quay {{
+            publicCode
             stopPlace {{
               name
               id
@@ -94,6 +94,7 @@ QUERY_JOURNEY = """{{
         }}
         toPlace {{
           quay {{
+            publicCode
             stopPlace {{
               name
               id
