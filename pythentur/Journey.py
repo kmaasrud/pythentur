@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from . import StopPlace
 from .helpers import ISO_FORMAT, API_URL, QUERY_JOURNEY
-from .helpers import post_to_api
+from .helpers import post_to_api, decode1252
 
 class Journey():
     """Object containing a journey from one place to another.
@@ -37,41 +37,31 @@ class Journey():
 
     def trip(self, i):
         query = QUERY_JOURNEY.format(**{
-            'from': self._from.id, 'to': self._to.id,
-            'time': self.time, 'noDepartures': self.n_trips
-            })
+            'from': self._from.id, 'to': self._to.id, # TODO: Use coordinates instead of ID.
+            'time': self.time, 'noDepartures': str(i + 1)
+        })
         r = post(API_URL,
             json={'query': query},
             headers={'ET-Client-Name': self.header}
         )
-        data = json.loads(r.text)['data']
+        data = json.loads(r.text)['data']['trip']['tripPatterns'][i]
 
         duration = data['duration']
         legs = []
-        for leg in data['legs']:
-            if leg['mode'] == 'foot':
-                legs.append({
-                    'transportMode': leg['mode'],
-                    'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
-                    'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
-                    'fromName': leg['fromPlace']['quay']['stopPlace']['name'], # TODO: Needs a fix for when the departure place is not a stop place.
-                    'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
-                    'toName': leg['toPlace']['quay']['stopPlace']['name'], # TODO: See above
-                    'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
-                })
-            else:
-                legs.append({
-                    'transportMode': leg['mode'],
-                    'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
-                    'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
-                    'lineName': leg['fromEstimatedCall']['destinationDisplay']['frontText'],
-                    'lineNumber': leg['line']['publicCode'],
-                    'lineColor': "#" + leg['line']['presentation']['colour'],
-                    'fromName': leg['fromPlace']['quay']['stopPlace']['name'],
-                    'fromId': leg['fromPlace']['quay']['stopPlace']['id'],
-                    'toName': leg['toPlace']['quay']['stopPlace']['name'],
-                    'toId': leg['toPlace']['quay']['stopPlace']['id']
-                })
+        for i, leg in enumerate(data['legs']):
+            legs.append({
+                'transportMode': leg['mode'],
+                'aimedStartTime': datetime.strptime(leg['aimedStartTime'], ISO_FORMAT),
+                'expectedStartTime': datetime.strptime(leg['expectedStartTime'], ISO_FORMAT),
+                'fromName': decode1252(leg['fromPlace']['quay']['stopPlace']['name']), # TODO: Needs a fix for when the departure place is not a stop place.
+                'fromId': leg['fromPlace']['quay']['stopPlace']['id'], # TODO: See above
+                'toName': decode1252(leg['toPlace']['quay']['stopPlace']['name']), # TODO: See above
+                'toId': leg['toPlace']['quay']['stopPlace']['id'] # TODO: See above
+            })
+            if leg['mode'] != 'foot':
+                legs[i]['lineName'] = decode1252(leg['fromEstimatedCall']['destinationDisplay']['frontText'])
+                legs[i]['lineNumber'] = leg['line']['publicCode']
+                legs[i]['lineColor'] = "#" + leg['line']['presentation']['colour']
 
         self.trips[i] = {'duration': duration, 'legs': legs}
 
