@@ -2,7 +2,7 @@
 
 Every stop place in the National Stop Register (NSR) can become a Python-friendly `StopPlace`. Every `StopPlace` contains a number of [`Platforms`](platform.md), which are the main interface to fetch transport data.
 
-!!! info `StopPlace` is a `Location`
+!!! info
     `StopPlace` is a subclass of [`Location`](location.md) and does thus contain geographic data like coordinates and locality. This is further explained in [The Location Object](location.md#attributes).
 
 ## Constructing
@@ -24,7 +24,7 @@ oslo_s = StopPlace(
 
 would make `oslo_s` a `StopPlace` object for Oslo Central Station.
 
-!!! info Initializing speed
+!!! info
     For larger stop places with many platforms, initializing a `StopPlace` might take a few seconds, since the API is queried for each platform. However, when the `StopPlace` is loaded in memory, the operations should be quite snappy.
 
 ### Using `from_string`
