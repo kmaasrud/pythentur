@@ -45,7 +45,7 @@ NSR:Quay:8067]
 
 This isn't too easy to decode, obviously, but a quick check on [Entur](https://entur.no/avgangstavle) should show you which platforms are on each stop in a more human-friendly manner. 
 
-The transport calls from each platform are accessed through the corresponding index, and are always up to date when you access them. For example, accessing the first element of platform G twice always gives me the result at that specific time.
+The transport calls from each platform are accessed through the corresponding index, and are always up to date when you access them. For example, accessing the first element of Majorstuen platform 1 twice always gives me the result at that specific time.
 
 ```python
 >>> majorstuen['1'][0]['destination']
