@@ -1,10 +1,11 @@
 # Necessary imports
 from requests import post
 import json
-import operator
 from datetime import datetime, timezone
 from urllib.request import Request, urlopen
 from urllib.parse import quote
+import concurrent.futures
+from itertools import repeat
 
 from .helpers import COORDS_QUERY_STOP_PLACE, COORDS_QUERY_PLATFORM, QUERY_CALLS, API_URL, ISO_FORMAT, GEOCODER_URL
 from .helpers import prettyTime
@@ -31,7 +32,12 @@ class StopPlace(Location):
     data = post_to_api(COORDS_QUERY_STOP_PLACE.format(stop_place_id), self.header)['stopPlace']
 
     self.zones = [zone['id'] for zone in data['tariffZones']]
-    self.platforms = [Platform(quay['id'], header) for quay in data['quays'] if quay['estimatedCalls']]
+
+    ids = [quay['id'] for quay in data['quays'] if quay['estimatedCalls']]
+    self.platforms = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+      for result in executor.map(Platform, ids, repeat(self.header)):
+        self.platforms.append(result)
 
     super().__init__(data['latitude'], data['longitude'], self.header)
 
