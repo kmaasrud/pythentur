@@ -1,3 +1,0 @@
-# The `Location` object
-
-## Attributes

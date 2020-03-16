@@ -3,6 +3,7 @@ from urllib.request import Request, urlopen
 from urllib.parse import quote
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
+from pprint import pprint
 
 from . import Location
 from . import Platform
@@ -50,6 +51,9 @@ class StopPlace(Location):
     stop_place_id = json_data['features'][0]['properties']['id']
 
     return cls(stop_place_id, header)
+
+  def all_platforms(self):
+    pprint({p.name: p.id for p in self.platforms})
 
   def __getitem__(self, key):
     if key in [platform.name for platform in self.platforms]:

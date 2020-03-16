@@ -17,6 +17,5 @@ markdown_extensions:
 pages:
   - 'Introduction': 'index.md'
   - 'User guide':
-    - 'The StopPlace object': 'userguide/stopplace.md'
-    - 'The Location object': 'userguide/location.md'
-    - 'The Platform object': 'userguide/platform.md'
+    - 'Getting to know the object types': 'userguide/getting-to-know.md'
+    - 'Usage': 'userguide/usage.md'

@@ -47,12 +47,12 @@ class Platform(Location):
             aimed = datetime.strptime(data['aimedArrivalTime'], ISO_FORMAT)
             expected = datetime.strptime(data['expectedArrivalTime'], ISO_FORMAT)
             self.calls[i] = {
-            'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
-            'destination': decode1252(data['destinationDisplay']['frontText']),
-            'aimed': aimed,
-            'expected': expected,
-            'delay': expected - aimed,
-            'readableTime': prettyTime((expected - datetime.now(timezone.utc)).seconds)
+                'line': data['serviceJourney']['journeyPattern']['line']['publicCode'],
+                'destination': decode1252(data['destinationDisplay']['frontText']),
+                'aimed': aimed,
+                'expected': expected,
+                'delay': expected - aimed,
+                'readableTime': prettyTime((expected - datetime.now(timezone.utc)).seconds)
             }
         return self.calls[i]
 
