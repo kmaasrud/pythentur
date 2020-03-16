@@ -6,7 +6,7 @@ theme:
   name: material
   logo: 'images/logo.png'
   palette:
-    primary: cyan
+    primary: teal
 
 repo_name: 'kmaasrud/pythentur'
 repo_url: 'https://github.com/kmaasrud/pythentur'

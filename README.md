@@ -16,7 +16,7 @@ or clone this repository and install locally.
 
 ## Documentation
 
-The documentation is hosted [here](https://pythentur.readthedocs.io/en/latest/).
+The documentation is hosted [here](https://kmaasrud.github.io/pythentur/).
 
 ---
 
