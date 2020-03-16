@@ -1,8 +1,10 @@
 # Pythentur
 
+![](./assets/cover.png)
+
 Fetch data from the norwegian national hub for public transport information. This package gives easy access to about 21,000 daily departures on 3,000 routes - all over Norway. 
 
-![](quick_demo.gif)
+![](./assets/quick_demo.gif)
 
 ## Installation
 
