@@ -1,6 +1,6 @@
 # Welcome to Pythentur
 
-![](../assets/cover.png)
+![](./images/cover.png)
 
 Pythentur makes retrieving public transport data from Entur dead simple.
 
