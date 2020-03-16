@@ -15,7 +15,7 @@ markdown_extensions:
   - admonition
   - toc
 
-pages:
+nav:
   - 'Introduction': 'index.md'
   - 'User guide':
     - 'Getting to know the object types': 'userguide/getting-to-know.md'

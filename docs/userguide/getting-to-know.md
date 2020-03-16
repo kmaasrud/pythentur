@@ -8,7 +8,7 @@
 
 ## `StopPlace`
 
-Every stop place in the National Stop Register (NSR) can become a Python-friendly `StopPlace`. Every `StopPlace` contains a number of [`Platforms`](platform.md), which are the main interface to fetch transport data.
+Every stop place in the National Stop Register (NSR) can become a Python-friendly `StopPlace`. Every `StopPlace` contains a number of [`Platforms`](#platform), which are the main interface to fetch transport data.
 
 !!! info
     `StopPlace` is a subclass of [`Location`](#location) and does thus contain geographic data like coordinates and locality. This is further explained in [The Location Object](#la).
@@ -53,9 +53,9 @@ nationaltheatret = StopPlace.from_string(
 | :--------- | :-------------------------- |
 | `name` | The name of the stop place. |
 | `id` | The NSR ID of the stop place. |
-| `platforms` | List of all the stop place's platforms. Each of these platforms are a [`Platform`](platform.md) object, and can be accessed with their `name` or  `id` as a key. |
+| `platforms` | List of all the stop place's platforms. Each of these platforms are a [`Platform`](#platform) object, and can be accessed with their `name` or  `id` as a key. |
 | `zones` | A list of the tariff zones the stop place is a part of. |
 
-In addition, `StopPlace` contains all of the attributes of the [`Location`](location.md#attributes) class.
+In addition, `StopPlace` contains all of the attributes of the [`Location`](#la) class.
 
 ## `Platform`
