@@ -47,7 +47,7 @@
       
         
         
-        <meta name="theme-color" content="#00bcd4">
+        <meta name="theme-color" content="#009688">
       
     
     
@@ -71,7 +71,7 @@
   
     
     
-    <body dir="ltr" data-md-color-primary="cyan" data-md-color-accent="">
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="">
   
     <svg class="md-svg">
       <defs>
@@ -498,32 +498,74 @@
                 
                 <h1 id="getting-to-know-the-object-types">Getting to know the object types</h1>
 <h2 id="location"><code>Location</code></h2>
+<p>A <code>Location</code> is simply that - a location. However, as this package is limited to public transport in Norway, so are the allowed locations. <code>Location</code> is Pythentur's way of representing geographic placement and is powered by <a href="https://developer.entur.org/pages-geocoder-intro">Entur's Geocoder</a>.</p>
 <h3 id="constructing">Constructing</h3>
-<h3 id="attributes"><a name="la"></a>Attributes</h3>
-<h2 id="stopplace"><code>StopPlace</code></h2>
-<p>Every stop place in the National Stop Register (NSR) can become a Python-friendly <code>StopPlace</code>. Every <code>StopPlace</code> contains a number of <a href="#platform"><code>Platforms</code></a>, which are the main interface to fetch transport data.</p>
+<p>A <code>Location</code> can be constructed by passing in its geographic coordinates to the initializer, as well as Entur's required <code>"ET-Client-Name"</code> header.</p>
+<pre><code class="python">from pythentur import Location
+
+someplace = Location('63.445948', '10.898926', header = 'some_company - some_app')
+</code></pre>
+
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p><code>StopPlace</code> is a subclass of <a href="#location"><code>Location</code></a> and does thus contain geographic data like coordinates and locality. This is further explained in <a href="#la">The Location Object</a>.</p>
+<p>The header is required by Entur to identify any users of their API. Omitting this deploys rate-limiting, and is therefore not supported by this package. The format of the header should be <code>"company - application"</code>.</p>
 </div>
+<p>An alternative way of constructing a <code>Location</code> is to use the <code>from_string</code> method. <code>from_string</code> takes a searchstring and the <code>"ET-Client-Name"</code> header as parameters, and returns the first location matching that string.</p>
+<h3 id="attributes"><a name="la"></a>Attributes</h3>
+<table>
+<thead>
+<tr>
+<th align="left">Attribute</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code>lat</code></td>
+<td align="left">The latitude of the location.</td>
+</tr>
+<tr>
+<td align="left"><code>lon</code></td>
+<td align="left">The longitude of the location.</td>
+</tr>
+<tr>
+<td align="left"><code>coordinates</code></td>
+<td align="left">The latitude and longitude coupled together as a list.</td>
+</tr>
+<tr>
+<td align="left"><code>name</code></td>
+<td align="left">The name of the location, as given by Entur's Geocoder.</td>
+</tr>
+<tr>
+<td align="left"><code>county</code></td>
+<td align="left">The county of the location, as given by Entur's Geocoder.</td>
+</tr>
+<tr>
+<td align="left"><code>locality</code></td>
+<td align="left">The locality of the location, as given by Entur's Geocoder.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="stopplace"><code>StopPlace</code></h2>
+<p>Every stop place in the National Stop Register (NSR) can become a Python-friendly <code>StopPlace</code>. Every <code>StopPlace</code> contains a number of <a href="#platform"><code>Platforms</code></a>, which are the main interface to fetch transport data.</p>
+<p><code>StopPlace</code> is a subclass of <a href="#location"><code>Location</code></a> and does thus contain geographic data like coordinates and locality. This is further explained in <a href="#la">The Location Object</a>.</p>
 <h3 id="constructing_1">Constructing</h3>
 <p>To construct a <code>StopPlace</code>, you need the NSR stop place ID and Entur's required <code>"ET-Client-Name"</code> header.</p>
-<ul>
-<li>The NSR ID is easily found by searching for the requested stop place on <a href="https://entur.no/avgangstavle">Entur's travel planner</a> and checking the URL. An alternative is using <a href="#using-from_string"><code>from_string</code></a> to construct the class instead.</li>
-<li>The header is required by Entur to identify any users of their API. Omitting this deploys rate-limiting, and is therefore not supported by this package. The format of the header should be <code>"company - application"</code>.</li>
-</ul>
 <p>As an example,</p>
 <pre><code class="python">from pythentur import StopPlace
 
 oslo_s = StopPlace(
-    'NSR:StopPlace:59872', header = 'foo_company - bar_app'
+    'NSR:StopPlace:59872', header = 'some_company - some_app'
 )
 </code></pre>
 
 <p>would make <code>oslo_s</code> a <code>StopPlace</code> object for Oslo Central Station.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>For larger stop places with many platforms, initializing a <code>StopPlace</code> might take a few seconds, since the API is queried for each platform. However, when the <code>StopPlace</code> is loaded in memory, the operations should be quite snappy.</p>
+<ul>
+<li>The NSR ID is easily found by searching for the requested stop place on <a href="https://entur.no/avgangstavle">Entur's travel planner</a> and checking the URL. An alternative is using <a href="#using-from_string"><code>from_string</code></a> to construct the class instead.</li>
+<li>The header is required by Entur to identify any users of their API. Omitting this deploys rate-limiting, and is therefore not supported by this package. The format of the header should be <code>"company - application"</code>.</li>
+</ul>
 </div>
 <h4 id="using-from_string">Using <code>from_string</code></h4>
 <p>To avoid having to look up the NSR ID of a stop place, an alternative way of constructing a <code>StopPlace</code> is supplied. <code>from_string</code> takes a searchstring and the <code>"ET-Client-Name"</code> header as parameters, and returns the first stop place matching that string.</p>
