@@ -2,7 +2,7 @@
 
 ![](./assets/cover.png)
 
-Fetch data from the norwegian national hub for public transport information. This package gives easy access to about 21,000 daily departures on 3,000 routes - all over Norway. 
+Fetch data from the norwegian national hub for public transport information, [Entur](https://entur.no/). This package gives easy access to about 21,000 daily departures on 3,000 routes - all over Norway. 
 
 ![](./assets/quick_demo.gif)
 

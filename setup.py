@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pythentur",
-    version="0.1.1",
+    version="0.2.0",
     author="Knut Magnus Aasrud",
     author_email="kmaasrud@outlook.com",
     description="Simplified data retrieval from Entur in Python",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/kmaasrud/pythentur",
+    url="https://kmaasrud.github.io/pythentur/",
     packages=setuptools.find_packages(),
     install_requires=[
         "requests",
